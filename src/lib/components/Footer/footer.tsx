@@ -1,5 +1,4 @@
 import { Box, Text } from "@radix-ui/themes";
-// import "./footer.scss";
 const footer = () => {
   return (
     <footer className="footer">

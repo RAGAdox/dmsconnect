@@ -1,26 +1,28 @@
-import { Container, Flex } from "@radix-ui/themes";
 import Link from "next/link";
+
+import { t } from "@/lib/constants";
+import { Link as RadixLink } from "@radix-ui/themes";
 import { Suspense } from "react";
 import NavbarUser from "./navbar-user";
 
-import getFeatureFlags from "@/lib/utils/getFeatureFlags";
-
-const NavBar = async () => {
-  const featureFlags = await getFeatureFlags();
-  console.log(featureFlags);
+const NavBar = () => {
   return (
-    <Container style={{ borderBottom: "1px solid var(--accent-2)" }}>
-      <Flex direction="row" flexGrow="1" justify="between" align="center" p="2">
-        <div>
-          <Link href="/">DMS Connect</Link>
+    <header style={{ borderBottom: "1px solid var(--accent-2)" }}>
+      <nav className="container mx-auto p-2">
+        <div className="flex flex-row items-center justify-between">
+          <div>
+            <RadixLink underline="none" weight="bold" asChild>
+              <Link href="/">{t.index.title}</Link>
+            </RadixLink>
+          </div>
+          <div>
+            <Suspense>
+              <NavbarUser />
+            </Suspense>
+          </div>
         </div>
-        <div>
-          <Suspense>
-            <NavbarUser />
-          </Suspense>
-        </div>
-      </Flex>
-    </Container>
+      </nav>
+    </header>
   );
 };
 
