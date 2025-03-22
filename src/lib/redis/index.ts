@@ -1,5 +1,4 @@
 import { Redis } from "@upstash/redis";
-import "server-only";
 
 let redis: Redis | undefined = undefined;
 export default function getRedisClient() {

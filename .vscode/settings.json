@@ -1,5 +1,6 @@
 {
   "cSpell.words": [
     "hgetall"
-  ]
+  ],
+  "zencoder.enableRepoIndexing": true
 }

@@ -18,16 +18,17 @@ const getInitials = (name: string) => {
 const NavbarUser = () => {
   const { isLoaded, user } = useUser();
   const { openSignIn, signOut } = useClerk();
+
   const searchParams = useSearchParams();
   const router = useRouter();
-  const promptLogin = toBoolean(searchParams.get("promptLogin") || "");
+  const promptLogin = toBoolean(searchParams?.get("promptLogin") || "");
 
   useEffect(() => {
     if (promptLogin && isLoaded && !user) {
-      openSignIn();
+      openSignIn({ withSignUp: true });
     }
     if (promptLogin && isLoaded && user) {
-      const urlSearchParams = new URLSearchParams(searchParams);
+      const urlSearchParams = new URLSearchParams(searchParams ?? undefined);
       urlSearchParams.delete("promptLogin");
       router.replace(`?${urlSearchParams.toString()}`, { scroll: false });
     }
