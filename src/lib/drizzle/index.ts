@@ -1,6 +1,5 @@
 import { drizzle, PostgresJsDatabase } from "drizzle-orm/postgres-js";
 import postgres from "postgres";
-import "server-only";
 
 let db: PostgresJsDatabase | undefined = undefined;
 export default function getDrizzleClient() {

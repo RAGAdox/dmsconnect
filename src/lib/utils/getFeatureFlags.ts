@@ -1,25 +1,19 @@
-import getDrizzleClient from "../drizzle";
-import { featureFlags } from "../drizzle/schema/featureFlags";
+import { featureFlagsArray } from "../constants/flags";
+import redisKeys from "../constants/redis-keys";
 import getRedisClient from "../redis";
 
-export type FeatureFlags = Record<string, boolean>;
-
-export default async function getFeatureFlags(): Promise<FeatureFlags> {
+export default async function getFeatureFlags() {
+  let flags: FeatureFlags | null = null;
+  console.log("executing feature flags");
   const redisClient = getRedisClient();
-  const flags: FeatureFlags =
-    (await redisClient.hgetall("feature_flags")) || {};
+  flags = await redisClient.hgetall(redisKeys.featureFlag);
 
-  // Object.keys(flags).length === 0 checks if the flags object is empty
-  if (Object.keys(flags).length === 0) {
-    const db = getDrizzleClient();
-    const dbFeatureflags = await db.select().from(featureFlags);
-
-    for (const flag of dbFeatureflags) {
-      // Set each flag as a key-value pair in Redis
-      await redisClient.hset("feature_flags", { [flag.flag]: flag.enabled });
-      flags[flag.flag] = flag.enabled;
+  if (!flags) {
+    flags = {} as FeatureFlags;
+    for (const flagKey of featureFlagsArray) {
+      flags[flagKey] = false;
     }
+    await redisClient.hset(redisKeys.featureFlag, flags);
   }
-
   return flags;
 }
