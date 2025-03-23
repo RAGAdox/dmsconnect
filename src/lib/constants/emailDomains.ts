@@ -1,3 +1,5 @@
-const EMAIL_DOMAINS = ["smit.smu.edu.in"] as const;
+const EMAIL_DOMAINS = process.env.EMAIL_DOMAINS
+  ? process.env.EMAIL_DOMAINS.split(",")
+  : [];
 
 export default EMAIL_DOMAINS;

@@ -1,7 +1,7 @@
 import getDrizzleClient from "@/lib/drizzle";
 import { Onboarding } from "@/lib/drizzle/schema/onboarding";
-import emailValidationAction from "@/lib/utils/emailValidationAction";
-import getDomainEmail from "@/lib/utils/getDomainEmail";
+import isAllowedEmailDomain from "@/lib/utils/isAllowedEmailDomain";
+
 import { clerkClient, getAuth } from "@clerk/nextjs/server";
 import { NextApiRequest, NextApiResponse } from "next";
 
@@ -14,38 +14,35 @@ export default async function handler(
   if (!course || !registrationNumber) {
     return res.status(400).json({ message: "Invalid Request" });
   }
-  const { userId } = getAuth(req);
-  if (!userId) {
+
+  const authObject = getAuth(req);
+  const sessionClaims: CustomJwtSessionClaims | null = authObject.userId
+    ? authObject.sessionClaims
+    : null;
+
+  if (!sessionClaims) {
     return res.status(401).json({ message: "Unauthorized" });
   }
   const client = await clerkClient();
 
-  /* Fix this */
-  const result = await emailValidationAction(userId, () => {
-    return res.status(400).json({ message: "Email Domain Not Allowed" });
-  });
-  if (result) {
-    return result;
-  }
-
   /* Get Email */
-  const { emailAddresses } = await client.users.getUser(userId);
-  const email = await getDomainEmail(emailAddresses);
-  if (!email) {
-    return res.status(400).json({ message: "Email Not Found" });
+  if (!isAllowedEmailDomain(sessionClaims.email)) {
+    return res.status(403).json({ message: "Access Denied" });
   }
   const drizzle = getDrizzleClient();
   try {
     await drizzle.insert(Onboarding).values({
       course,
       reg_number: registrationNumber,
-      user_id: userId,
-      emailAddress: email,
+      user_id: sessionClaims.id,
+      emailAddress: sessionClaims.email,
     });
-    const { publicMetadata } = await client.users.updateUser(userId, {
-      publicMetadata: {
-        onboardingComplete: true,
-      },
+    const newPublicMetadata: SessionPublicMetadata = {
+      onboardingComplete: true,
+      roles: ["user"],
+    };
+    const { publicMetadata } = await client.users.updateUser(sessionClaims.id, {
+      publicMetadata: newPublicMetadata as unknown as UserPublicMetadata,
     });
     if (publicMetadata) {
       return res.status(200).json({ publicMetadata });

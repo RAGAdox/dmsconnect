@@ -1,10 +1,11 @@
 import EMAIL_DOMAINS from "@/lib/constants/emailDomains";
-import getFeatureFlags from "@/lib/utils/getFeatureFlags";
-
 import { useClerk } from "@clerk/nextjs";
+
 import { Heading, Link as RadixLink, Text } from "@radix-ui/themes";
-import { GetStaticProps } from "next";
-const BannedOnboarding = () => {
+import { GetStaticProps, InferGetStaticPropsType } from "next";
+const BannedOnboarding = ({
+  emailDomains,
+}: InferGetStaticPropsType<typeof getStaticProps>) => {
   const { signOut } = useClerk();
 
   const handleRedirect = async () => {
@@ -17,16 +18,13 @@ const BannedOnboarding = () => {
         Your email does not follow our security standards
       </Heading>
       <Text>
-        Allowed domains:{" "}
-        {EMAIL_DOMAINS.map((emailDomain) => (
-          <RadixLink key={emailDomain}>{emailDomain}</RadixLink>
-        )).join(", ")}
+        Allowed domains: <RadixLink>{emailDomains.join(", ")}</RadixLink>
       </Text>
 
       <RadixLink
         weight="bold"
         size="4"
-        className=" underline"
+        className="hover:underline! cursor-pointer!"
         onClick={handleRedirect}
       >
         Sign up with a allowed domain
@@ -36,14 +34,11 @@ const BannedOnboarding = () => {
 };
 
 export const getStaticProps = (async () => {
-  const featureFlags = await getFeatureFlags();
-
   return {
-    revalidate: 60,
-    props: { featureFlags },
+    props: { emailDomains: EMAIL_DOMAINS },
   };
 }) satisfies GetStaticProps<{
-  featureFlags: FeatureFlags;
+  emailDomains: typeof EMAIL_DOMAINS;
 }>;
 
 export default BannedOnboarding;

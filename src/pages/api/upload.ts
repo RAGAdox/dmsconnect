@@ -4,19 +4,18 @@ import { readFileSync } from "fs";
 import { NextApiRequest, NextApiResponse } from "next";
 import { NextResponse } from "next/server";
 
-// Disable Next.js default bodyParser
 export const config = {
   api: {
     bodyParser: false,
   },
 };
+
+
 export default async function handler(
   req: NextApiRequest,
   res: NextApiResponse
 ) {
-  console.log("is this wiorking");
   if (req.method !== "POST") {
-    console.log("Is it grtting rejected");
     return new NextResponse(null, { status: 405 });
   }
 

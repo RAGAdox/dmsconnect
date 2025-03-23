@@ -4,7 +4,6 @@ const connectionString = process.env.DRIZZLE_KIT_URL;
 if (!connectionString) {
   throw new Error("Missing DATABASE_URL");
 }
-console.log("Using database connection:", connectionString);
 
 export default defineConfig({
   dbCredentials: {

@@ -10,7 +10,6 @@ export default function getDrizzleClient() {
   if (!connectionString) {
     throw new Error("Missing DATABASE_URL");
   }
-  // Disable prefetch as it is not supported for "Transaction" pool mode
   const client = postgres(connectionString, { prepare: false });
   db = drizzle(client);
   return db;

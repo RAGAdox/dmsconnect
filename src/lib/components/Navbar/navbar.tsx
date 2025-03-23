@@ -1,6 +1,7 @@
 import Link from "next/link";
 
 import { t } from "@/lib/constants";
+import { Link as RadixLink } from "@radix-ui/themes";
 import { Suspense } from "react";
 import NavbarUser from "./navbar-user";
 
@@ -10,7 +11,9 @@ const NavBar = () => {
       <nav className="container mx-auto p-2">
         <div className="flex flex-row items-center justify-between">
           <div>
-            <Link href="/">{t.index.title}</Link>
+            <RadixLink underline="none" weight="bold" asChild>
+              <Link href="/">{t.index.title}</Link>
+            </RadixLink>
           </div>
           <div>
             <Suspense>

@@ -1,57 +1,160 @@
 import { clerkMiddleware, createRouteMatcher } from "@clerk/nextjs/server";
-import { NextResponse } from "next/server";
-import getFeatureFlags from "./lib/utils/getFeatureFlags";
+import { NextRequest, NextResponse } from "next/server";
+import FEATURE_FLAGS from "./lib/config/featureFlags";
+import isAllowedEmailDomain from "./lib/utils/isAllowedEmailDomain";
 
-const isOnboardingRoute = createRouteMatcher(["/onboarding(.*)"]);
+const isAPI = createRouteMatcher(["/api(.*)"]);
+
 const isProtectedRoute = createRouteMatcher([
   "/file-share(.*)",
   "/onboarding(.*)",
+  "/banned(.*)",
 ]);
+const isPublicApi = createRouteMatcher([]);
+
 const isOnboardingApi = createRouteMatcher(["/api/onboard"]);
-const isProtectedApi = createRouteMatcher(["/api(.*)"]);
+
+const isMatchedByRoute = (route: string, req: NextRequest) => {
+  return createRouteMatcher([route])(req);
+};
+
+const handleApiAuthentication = (
+  sessionClaims: CustomJwtSessionClaims | null,
+  req: NextRequest
+) => {
+  if (!sessionClaims) {
+    console.error(`${req.nextUrl.pathname}`, "Unauthorized");
+    return NextResponse.json({ message: "Unauthoried" }, { status: 401 });
+  }
+};
+
+const handleApiAuthorization = (
+  sessionClaims: CustomJwtSessionClaims | null,
+  req: NextRequest
+) => {
+  if (
+    sessionClaims &&
+    FEATURE_FLAGS.onboarding.enabled &&
+    !sessionClaims.publicMetadata?.onboardingComplete &&
+    !isOnboardingApi(req)
+  ) {
+    console.error(`${req.nextUrl.pathname}`, "Access Denied");
+    return NextResponse.json({ message: "Access Denied" }, { status: 403 });
+  }
+
+  /* IMPLEMENT FEATURE FLAG ACCESS LEVEL AUTHORIZATION */
+};
+
+const handleApiProtection = (
+  sessionClaims: CustomJwtSessionClaims | null,
+  req: NextRequest
+) => {
+  if (isAPI(req) && !isPublicApi(req)) {
+    return (
+      handleApiAuthentication(sessionClaims, req) ||
+      handleApiAuthorization(sessionClaims, req)
+    );
+  }
+};
+
+const handleRouteAuthentication = (
+  sessionClaims: CustomJwtSessionClaims | null,
+  req: NextRequest
+) => {
+  if (isProtectedRoute(req) && !sessionClaims) {
+    console.error(
+      req.nextUrl.pathname,
+      "authentication redirect->",
+      `${req.nextUrl.origin}?promptLogin=true`
+    );
+    return NextResponse.redirect(`${req.nextUrl.origin}?promptLogin=true`);
+  }
+};
+
+const handleCheckEmailDomain = (
+  sessionClaims: CustomJwtSessionClaims | null,
+  req: NextRequest
+) => {
+  const featureUrl = `${req.nextUrl.origin}${FEATURE_FLAGS.check_email_domains.featureUrl}`;
+  const fallbackUrl = `${req.nextUrl.origin}${FEATURE_FLAGS.check_email_domains.fallbackUrl}`;
+  if (
+    FEATURE_FLAGS.check_email_domains.enabled &&
+    sessionClaims &&
+    !isAllowedEmailDomain(sessionClaims.email)
+  ) {
+    if (!isMatchedByRoute(FEATURE_FLAGS.check_email_domains.featureUrl, req)) {
+      console.error(req.nextUrl.pathname, "Bad email redirect->", featureUrl);
+      return NextResponse.redirect(featureUrl);
+    } else {
+      return NextResponse.next(); // Early Exit
+    }
+  }
+
+  if (
+    sessionClaims &&
+    isAllowedEmailDomain(sessionClaims.email) &&
+    isMatchedByRoute(FEATURE_FLAGS.check_email_domains.featureUrl, req)
+  ) {
+    console.error(req.nextUrl.pathname, "Not Banned->", fallbackUrl);
+    return NextResponse.redirect(fallbackUrl);
+  }
+};
+
+const handleCheckOnboarding = (
+  sessionClaims: CustomJwtSessionClaims | null,
+  req: NextRequest
+) => {
+  const featureUrl = `${req.nextUrl.origin}${FEATURE_FLAGS.onboarding.featureUrl}`;
+  const fallbackUrl = `${req.nextUrl.origin}${FEATURE_FLAGS.onboarding.fallbackUrl}`;
+  if (
+    FEATURE_FLAGS.onboarding.enabled &&
+    sessionClaims &&
+    !(sessionClaims.publicMetadata?.onboardingComplete || false)
+  ) {
+    if (!isMatchedByRoute(FEATURE_FLAGS.onboarding.featureUrl, req)) {
+      console.error(req.nextUrl.pathname, "onboarding redirect->", featureUrl);
+      return NextResponse.redirect(featureUrl);
+    } else {
+      return NextResponse.next(); // Early Exit
+    }
+  }
+
+  if (
+    sessionClaims &&
+    sessionClaims.publicMetadata?.onboardingComplete &&
+    isMatchedByRoute(FEATURE_FLAGS.onboarding.featureUrl, req)
+  ) {
+    console.error(req.nextUrl.pathname, "onboarding redirect->", fallbackUrl);
+    return NextResponse.redirect(fallbackUrl);
+  }
+};
+
+const handleRouteProtection = (
+  sessionClaims: CustomJwtSessionClaims | null,
+  req: NextRequest
+) => {
+  if (!isAPI(req)) {
+    return (
+      handleRouteAuthentication(sessionClaims, req) ||
+      handleCheckEmailDomain(sessionClaims, req) ||
+      handleCheckOnboarding(sessionClaims, req)
+    );
+  }
+};
 
 export default clerkMiddleware(async (auth, req) => {
-  const featureFlags = await getFeatureFlags();
-  const { userId, sessionClaims } = await auth();
-  const publicMetadata = sessionClaims
-    ? (sessionClaims.metadata as PublicMetadata)
-    : undefined;
+  const authObject = await auth();
 
-  /* API Protection */
-  if (isProtectedApi(req)) {
-    if (!userId || !publicMetadata) {
-      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-    }
-    if (
-      userId &&
-      featureFlags.onboarding &&
-      !publicMetadata.onboardingComplete &&
-      !isOnboardingApi(req)
-    ) {
-      return NextResponse.json(
-        { error: "Onboarding Required" },
-        { status: 403 }
-      );
-    }
-  }
+  /*TODO Fix this -> Will cause runtime errors when using roles and publicMetadata is not populated */
+  const sessionClaims: CustomJwtSessionClaims | null = authObject.userId
+    ? authObject.sessionClaims
+    : null;
 
-  /* Route Protection */
-  if (isProtectedRoute(req)) {
-    if (!userId || !publicMetadata) {
-      return NextResponse.redirect(`${req.nextUrl.origin}?promptLogin=true`);
-    }
-    if (
-      userId &&
-      featureFlags.onboarding &&
-      !publicMetadata.onboardingComplete &&
-      !isOnboardingRoute(req)
-    ) {
-      return NextResponse.redirect(`${req.nextUrl.origin}/onboarding`);
-    }
-    if (userId && publicMetadata.onboardingComplete && isOnboardingRoute(req)) {
-      return NextResponse.redirect(`${req.nextUrl.origin}`);
-    }
-  }
+  return (
+    handleApiProtection(sessionClaims, req) ||
+    handleRouteProtection(sessionClaims, req) ||
+    NextResponse.next()
+  );
 });
 
 export const config = {
