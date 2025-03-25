@@ -1,10 +1,11 @@
 import { Link as RadixLink, Text } from "@radix-ui/themes";
+import { NextPageContext } from "next";
 import Link from "next/link";
-const Custom404 = () => {
+export default function Error({ error }: { error: string }) {
   return (
     <div className="flex flex-col justify-center items-center">
       <Text as="p" weight="bold" size="6">
-        404 | Not Found
+        {error ?? "Something went wrong. Please try again later."}
       </Text>
 
       <RadixLink weight="bold" size="4" className=" underline" asChild>
@@ -12,6 +13,8 @@ const Custom404 = () => {
       </RadixLink>
     </div>
   );
-};
+}
 
-export default Custom404;
+Error.getInitialProps = ({ err }: NextPageContext) => {
+  return { error: err?.message };
+};

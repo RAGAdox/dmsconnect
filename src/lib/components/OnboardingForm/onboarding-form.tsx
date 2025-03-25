@@ -10,6 +10,7 @@ import {
 } from "@radix-ui/themes";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
+import { YearRangeSelector } from "../YearRangeSelector";
 
 const OnboardingForm = () => {
   const { session } = useClerk();
@@ -21,11 +22,15 @@ const OnboardingForm = () => {
   const [regNum, setRegNumber] = useState<string>("");
   const [courseName, setCourseName] =
     useState<(typeof COURSES_ARRAY)[number]>();
+  const [startYear, setStartYear] = useState<number>();
+  const [endYear, setEndYear] = useState<number>();
 
   const isFormInValid =
     !regNum ||
     regNum.length !== 10 ||
     !courseName ||
+    !startYear ||
+    !endYear ||
     error !== undefined ||
     pending;
 
@@ -48,6 +53,8 @@ const OnboardingForm = () => {
       const body: OnboardingArgs = {
         registrationNumber: regNum,
         course: courseName,
+        startYear,
+        endYear
       };
       const response = await fetch("/api/onboard", {
         method: "POST",
@@ -87,6 +94,7 @@ const OnboardingForm = () => {
           <TextField.Root
             type="number"
             inputMode="numeric"
+            variant="surface"
             maxLength={10}
             placeholder="Enter Registration number"
             value={regNum}
@@ -110,6 +118,15 @@ const OnboardingForm = () => {
               ))}
             </Select.Content>
           </Select.Root>
+        </div>
+        <div className="flex flex-col gap-1">
+          <label>Academic session:</label>
+          <YearRangeSelector
+            startYear={startYear}
+            setStartYear={setStartYear}
+            endYear={endYear}
+            setEndYear={setEndYear}
+          />
         </div>
 
         <Text as="p" size="2" align="right" color="red">

@@ -5,6 +5,8 @@ declare global {
   interface OnboardingArgs {
     registrationNumber: string;
     course: (typeof COURSES_ARRAY)[number];
+    startYear: number;
+    endYear: number;
   }
 
   interface SessionPublicMetadata {

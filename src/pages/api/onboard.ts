@@ -9,7 +9,8 @@ export default async function handler(
   req: NextApiRequest,
   res: NextApiResponse
 ) {
-  const { course, registrationNumber } = req.body as OnboardingArgs;
+  const { course, registrationNumber, endYear, startYear } =
+    req.body as OnboardingArgs;
 
   if (!course || !registrationNumber) {
     return res.status(400).json({ message: "Invalid Request" });
@@ -36,6 +37,8 @@ export default async function handler(
       reg_number: registrationNumber,
       user_id: sessionClaims.id,
       emailAddress: sessionClaims.email,
+      endYear,
+      startYear,
     });
     const newPublicMetadata: SessionPublicMetadata = {
       onboardingComplete: true,
