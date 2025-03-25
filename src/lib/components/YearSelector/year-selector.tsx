@@ -1,27 +1,36 @@
 import { Select } from "@radix-ui/themes";
-
-const currentYear = new Date().getFullYear() + 10;
-const years = Array.from({ length: 100 }, (_, i) => currentYear - i); // Last 100 years
+import { noop } from "lodash";
 
 interface YearSelectorProps {
   placeholder?: string;
+  disabled?: boolean;
   className?: string;
+  values: number[];
+  value?: number;
+  setValue?: (v: number) => void;
 }
 
 export default function YearSelector({
   placeholder,
   className,
+  value,
+  values,
+  disabled,
+  setValue = noop,
 }: YearSelectorProps) {
-  // const [year, setYear] = useState<string>(currentYear.toString());
-
   return (
     <div className={className}>
-      <Select.Root required>
+      <Select.Root
+        required
+        disabled={disabled}
+        value={value?.toString()}
+        onValueChange={(y) => setValue(parseInt(y))}
+      >
         <Select.Trigger placeholder={placeholder} />
         <Select.Content>
-          {years.map((y) => (
-            <Select.Item key={y} value={`${y}`}>
-              {y}
+          {values.map((y) => (
+            <Select.Item key={y} value={y.toString()}>
+              {y.toString()}
             </Select.Item>
           ))}
         </Select.Content>

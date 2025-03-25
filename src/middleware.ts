@@ -1,12 +1,13 @@
 import { clerkMiddleware, createRouteMatcher } from "@clerk/nextjs/server";
 import { NextRequest, NextResponse } from "next/server";
 import FEATURE_FLAGS from "./lib/config/featureFlags";
+import hasRequiredRoles from "./lib/utils/hasReuiredRoles";
 import isAllowedEmailDomain from "./lib/utils/isAllowedEmailDomain";
 
 const isAPI = createRouteMatcher(["/api(.*)"]);
 
 const isProtectedRoute = createRouteMatcher([
-  "/file-share(.*)",
+  "/file-upload(.*)",
   "/onboarding(.*)",
   "/banned(.*)",
 ]);
@@ -14,7 +15,10 @@ const isPublicApi = createRouteMatcher([]);
 
 const isOnboardingApi = createRouteMatcher(["/api/onboard"]);
 
-const isMatchedByRoute = (route: string, req: NextRequest) => {
+const isMatchedByRoute = (route: string | string[], req: NextRequest) => {
+  if (Array.isArray(route)) {
+    return createRouteMatcher(route)(req);
+  }
   return createRouteMatcher([route])(req);
 };
 
@@ -129,6 +133,42 @@ const handleCheckOnboarding = (
   }
 };
 
+const handleModuleFeatureFlag = (
+  sessionClaims: CustomJwtSessionClaims | null,
+  req: NextRequest
+) => {
+  const currentModule = Object.keys(FEATURE_FLAGS)
+    .map((key) => FEATURE_FLAGS[key as keyof typeof FEATURE_FLAGS])
+    .find(
+      (flag) => flag.type === "module" && isMatchedByRoute(flag.featureUrl, req)
+    );
+  if (currentModule && !currentModule.enabled) {
+    return NextResponse.redirect(
+      `${req.nextUrl.origin}${currentModule.fallbackUrl}`
+    );
+  }
+  if (
+    currentModule &&
+    currentModule.enabled &&
+    "allowedRoles" in currentModule
+  ) {
+    const fallbackUrl = new URL(
+      `${req.nextUrl.origin}${currentModule.fallbackUrl}`
+    );
+    fallbackUrl.searchParams.set("reason", "Access Denied");
+    const publicMetadata = sessionClaims?.publicMetadata;
+
+    if (
+      !hasRequiredRoles(
+        currentModule.allowedRoles as unknown as string[],
+        publicMetadata
+      )
+    ) {
+      return NextResponse.redirect(fallbackUrl);
+    }
+  }
+};
+
 const handleRouteProtection = (
   sessionClaims: CustomJwtSessionClaims | null,
   req: NextRequest
@@ -137,7 +177,8 @@ const handleRouteProtection = (
     return (
       handleRouteAuthentication(sessionClaims, req) ||
       handleCheckEmailDomain(sessionClaims, req) ||
-      handleCheckOnboarding(sessionClaims, req)
+      handleCheckOnboarding(sessionClaims, req) ||
+      handleModuleFeatureFlag(sessionClaims, req)
     );
   }
 };

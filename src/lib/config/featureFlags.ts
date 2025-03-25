@@ -22,7 +22,7 @@ const FEATURE_FLAGS = {
     title: "View Files",
     description: "Access files shared by classmates or teachers",
     type: "module",
-    featureUrl: "/file-share",
+    featureUrl: "/files",
     fallbackUrl: "/feature-unavailable?feature=file_view",
   },
   file_upload: {
@@ -30,8 +30,9 @@ const FEATURE_FLAGS = {
     title: "Upload Files",
     description: "Store classroom notes into a shared storage",
     type: "module",
-    featureUrl: "/file-share",
+    featureUrl: "/file-upload",
     fallbackUrl: "/feature-unavailable?feature=file_upload",
+    allowedRoles: ["admin", "moderator"],
   },
 } as const;
 
