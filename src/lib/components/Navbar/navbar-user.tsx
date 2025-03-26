@@ -2,7 +2,7 @@ import getSessionPublicMetadata from "@/lib/utils/getSessionPublicMetadata";
 import toBoolean from "@/lib/utils/toBoolean";
 import { SignInButton, useClerk, useUser } from "@clerk/nextjs";
 import { Avatar, Button, DropdownMenu, Skeleton, Text } from "@radix-ui/themes";
-import { useRouter, useSearchParams } from "next/navigation";
+import { useRouter } from "next/router";
 
 import { useEffect } from "react";
 
@@ -19,20 +19,26 @@ const NavbarUser = () => {
 
   const { openSignIn, signOut } = useClerk();
 
-  const searchParams = useSearchParams();
   const router = useRouter();
-  const promptLogin = toBoolean(searchParams?.get("promptLogin") || "");
+  const { query } = router;
+
+  const promptLogin =
+    typeof query.promptLogin === "string"
+      ? toBoolean(query.promptLogin)
+      : false;
 
   useEffect(() => {
     if (promptLogin && isLoaded && !user) {
       openSignIn({ withSignUp: true });
     }
     if (promptLogin && isLoaded && user) {
-      const urlSearchParams = new URLSearchParams(searchParams ?? undefined);
+      const urlSearchParams = new URLSearchParams(
+        router.asPath.split("?")[1] ?? undefined
+      );
       urlSearchParams.delete("promptLogin");
-      router.replace(`?${urlSearchParams.toString()}`, { scroll: false });
+      router.replace(`?${urlSearchParams.toString()}`);
     }
-  }, [promptLogin, isLoaded, user, openSignIn, searchParams, router]);
+  }, [promptLogin, isLoaded, user, openSignIn, router]);
 
   if (!isLoaded)
     return (

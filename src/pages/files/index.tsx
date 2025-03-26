@@ -87,10 +87,10 @@ const FileExplorer = ({
                         key={`${currentCourse}-${currentSubjectCode}-${file.fileName}`}
                       >
                         <ContextMenu.Trigger>
-                          <Link
+                          <a
                             href={`/api/download?${downloadParams.toString()}`}
                             target="_blank"
-                            download={file.fileName}
+                            // download={file.fileName}
                             rel="noopener noreferrer"
                           >
                             <div className="flex flex-col max-w-20">
@@ -105,7 +105,7 @@ const FileExplorer = ({
                                 {file.fileName}
                               </Text>
                             </div>
-                          </Link>
+                          </a>
                         </ContextMenu.Trigger>
                         <ContextMenu.Content>
                           <ContextMenu.Item>
