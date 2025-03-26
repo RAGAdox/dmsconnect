@@ -90,7 +90,7 @@ const FileExplorer = ({
                           <a
                             href={`/api/download?${downloadParams.toString()}`}
                             target="_blank"
-                            // download={file.fileName}
+                            download={file.fileName}
                             rel="noopener noreferrer"
                           >
                             <div className="flex flex-col max-w-20">

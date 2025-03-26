@@ -4,6 +4,7 @@ import SUBJECT_CODE_ARRAY from "@/lib/constants/subject";
 import supabaseAdmin from "@/lib/supabase";
 import { getAuth } from "@clerk/nextjs/server";
 import { NextApiRequest, NextApiResponse } from "next";
+import { Readable } from "node:stream";
 
 export default async function handler(
   req: NextApiRequest,
@@ -46,12 +47,13 @@ export default async function handler(
     return res.status(500).json({ error: "Unable to get file" });
   }
   if (data) {
-    const arrayBuffer = await data.arrayBuffer();
-    const buffer = Buffer.from(arrayBuffer);
-    return res
+    res
       .setHeader("Cache-Control", "s-maxage=3600, stale-while-revalidate=60")
       .setHeader("Content-Type", "application/octet-stream")
-      .setHeader("Content-Disposition", `attachment; filename="${fileName}"`)
-      .send(buffer);
+      .setHeader("Content-Disposition", `attachment; filename="${fileName}"`);
+
+    const buffer = Buffer.from(await data.arrayBuffer());
+    const stream = Readable.from(buffer);
+    stream.pipe(res);
   }
 }
