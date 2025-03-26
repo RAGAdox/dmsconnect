@@ -7,6 +7,7 @@ import isAllowedEmailDomain from "./lib/utils/isAllowedEmailDomain";
 const isAPI = createRouteMatcher(["/api(.*)"]);
 
 const isProtectedRoute = createRouteMatcher([
+  "/files(.*)",
   "/file-upload(.*)",
   "/onboarding(.*)",
   "/banned(.*)",

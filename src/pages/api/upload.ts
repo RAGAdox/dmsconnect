@@ -71,6 +71,10 @@ export default async function handler(
       contentType: file.mimetype || undefined,
     });
 
+  if (storageResponse.error) {
+    return res.status(500).json({ message: "Unable to upload to S3" });
+  }
+
   try {
     const drizzle = getDrizzleClient();
     await drizzle.insert(FileRecord).values({
@@ -78,6 +82,7 @@ export default async function handler(
       course: course as (typeof COURSES_ARRAY)[number],
       subject_code: subjectCode as (typeof SUBJECT_CODE_ARRAY)[number],
       file_name: fileName,
+      file_id: storageResponse.data.id,
     });
   } catch {
     await supabaseAdmin.storage
@@ -87,10 +92,7 @@ export default async function handler(
       .status(500)
       .json({ message: "Unable to update DB, File Deleted" });
   }
-
-  if (storageResponse.error) {
-    return res.status(500).json({ message: "Unable to upload to S3" });
-  }
+  await res.revalidate(FEATURE_FLAGS.file_view.featureUrl);
   return res.json({
     ...storageResponse.data,
     message: "File upload successful",
