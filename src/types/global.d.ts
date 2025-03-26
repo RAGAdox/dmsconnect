@@ -1,5 +1,6 @@
 import COURSES_ARRAY from "@/lib/constants/courses";
 import ROLES_ARRAY from "@/lib/constants/roles";
+import SUBJECT_CODE_ARRAY from "@/lib/constants/subject";
 
 declare global {
   interface OnboardingArgs {
@@ -23,5 +24,18 @@ declare global {
   interface ClerkForceRedirectUrls {
     signInForceRedirectUrl: string;
     signUpForceRedirectUrl: string;
+  }
+
+  interface IFFiles {
+    fileName: string;
+    email: string;
+  }
+
+  interface IFSubjectRecords {
+    [key: (typeof SUBJECT_CODE_ARRAY)[number]]: IFFiles[];
+  }
+
+  interface IFRecords {
+    [key: (typeof COURSES_ARRAY)[number]]: IFSubjectRecords;
   }
 }
