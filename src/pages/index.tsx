@@ -1,6 +1,6 @@
 import FEATURE_FLAGS from "@/lib/config/featureFlags";
 import { t } from "@/lib/constants";
-import { Card, Heading, Text } from "@radix-ui/themes";
+import { Card, Heading, Link as RadixLink, Text } from "@radix-ui/themes";
 
 import { GetStaticProps, InferGetStaticPropsType } from "next";
 import Link from "next/link";
@@ -23,12 +23,20 @@ const index = ({
         .map((key) => {
           const flag = featureFlags[key as keyof typeof featureFlags];
           return (
-            <Link key={key} href={flag.featureUrl}>
-              <Card className="hover:ring">
-                <Heading>{flag.title}</Heading>
-                <Text>{flag.description}</Text>
-              </Card>
-            </Link>
+            <RadixLink
+              underline="none"
+              className="focus-visible:rounded-(--radius-4)! focus-visible:outline-offset-0!"
+              highContrast
+              key={key}
+              asChild
+            >
+              <Link href={flag.featureUrl}>
+                <Card>
+                  <Heading>{flag.title}</Heading>
+                  <Text>{flag.description}</Text>
+                </Card>
+              </Link>
+            </RadixLink>
           );
         })}
     </div>

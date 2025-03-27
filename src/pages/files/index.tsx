@@ -10,7 +10,8 @@ import {
 } from "@radix-ui/themes";
 import { GetStaticProps, InferGetStaticPropsType } from "next";
 import Link from "next/link";
-import { useState } from "react";
+import { useRouter } from "next/router";
+import { useEffect } from "react";
 
 interface Props {
   files: IFRecords;
@@ -19,40 +20,56 @@ interface Props {
 const FileExplorer = ({
   files,
 }: InferGetStaticPropsType<typeof getStaticProps>) => {
-  const initCourse = Object.keys(files)[0] as keyof IFRecords;
-  const [currentCourse, setCurrentCourse] =
-    useState<keyof IFRecords>(initCourse);
+  const COURSE_PARAM = "course";
+  const SUBJECT_PARAM = "subjectCode";
+  const router = useRouter();
+  const searchParams = new URLSearchParams(router.asPath.split("?").pop());
 
-  const initSubjectCode = Object.keys(
-    files[currentCourse]
-  )[0] as keyof IFSubjectRecords;
-  const [currentSubjectCode, setCurrentSubjectCode] =
-    useState<keyof IFSubjectRecords>(initSubjectCode);
+  const urlCourse = Object.keys(files).includes(
+    searchParams.get(COURSE_PARAM) as keyof IFRecords
+  )
+    ? (searchParams.get(COURSE_PARAM) as keyof IFRecords)
+    : undefined;
+  const currentCourse = urlCourse ?? (Object.keys(files)[0] as keyof IFRecords);
 
-  const handleCourseChange = (value: string) => {
-    const initSubjectCode = Object.keys(
-      files[value as keyof IFRecords]
-    )[0] as keyof IFSubjectRecords;
-    setCurrentSubjectCode(initSubjectCode);
-    setCurrentCourse(value as keyof IFRecords);
-  };
+  const urlSubject = Object.keys(files[currentCourse]).includes(
+    searchParams.get(SUBJECT_PARAM) as keyof IFSubjectRecords
+  )
+    ? (searchParams.get(SUBJECT_PARAM) as keyof IFSubjectRecords)
+    : undefined;
 
-  const handleSubjectCodeChange = (value: string) => {
-    setCurrentSubjectCode(value as keyof IFSubjectRecords);
-  };
+  const currentSubjectCode =
+    urlSubject ??
+    (Object.keys(files[currentCourse])[0] as keyof IFSubjectRecords);
+
+  useEffect(() => {
+    if (!urlSubject || !urlSubject) {
+      router.replace(
+        `?course=${encodeURIComponent(
+          currentCourse
+        )}&subjectCode=${encodeURIComponent(currentSubjectCode)}`
+      );
+    }
+  }, [currentCourse, currentSubjectCode, router, urlSubject]);
 
   return (
     <div className="flex-1 flex">
       <Tabs.Root
         value={currentCourse}
-        onValueChange={handleCourseChange}
+        // onValueChange={handleCourseChange}
         className="flex flex-col flex-1"
       >
         <Tabs.List className="flex">
           {Object.keys(files).map((course) => (
-            <Tabs.Trigger key={course} value={course}>
-              <Text>{course}</Text>
-            </Tabs.Trigger>
+            <Link
+              key={course}
+              tabIndex={-1}
+              href={`?course=${encodeURIComponent(
+                course
+              )}&subjectCode=${encodeURIComponent(currentSubjectCode)}`}
+            >
+              <Tabs.Trigger value={course}>{course}</Tabs.Trigger>
+            </Link>
           ))}
         </Tabs.List>
         <div className="flex-1 flex flex-row">
@@ -61,9 +78,15 @@ const FileExplorer = ({
               <RadixLink
                 weight={currentSubjectCode === subjectCode ? "bold" : "regular"}
                 key={subjectCode}
-                onClick={() => handleSubjectCodeChange(subjectCode)}
+                asChild
               >
-                {subjectCode}
+                <Link
+                  href={`?course=${encodeURIComponent(
+                    currentCourse
+                  )}&subjectCode=${encodeURIComponent(subjectCode)}`}
+                >
+                  {subjectCode}
+                </Link>
               </RadixLink>
             ))}
           </div>
@@ -87,7 +110,7 @@ const FileExplorer = ({
                         key={`${currentCourse}-${currentSubjectCode}-${file.fileName}`}
                       >
                         <ContextMenu.Trigger>
-                          <a
+                          <RadixLink
                             href={`/api/download?${downloadParams.toString()}`}
                             target="_blank"
                             download={file.fileName}
@@ -105,7 +128,7 @@ const FileExplorer = ({
                                 {file.fileName}
                               </Text>
                             </div>
-                          </a>
+                          </RadixLink>
                         </ContextMenu.Trigger>
                         <ContextMenu.Content>
                           <ContextMenu.Item>
@@ -133,11 +156,11 @@ const FileExplorer = ({
 export const getStaticProps = (async (_context) => {
   const files = await getFileRecord();
   if (!files) {
-    throw new Error("Unable to Get Files");
+    return {
+      notFound: true,
+    };
   }
-
   return {
-    revalidate: 3600,
     props: { files },
   };
 }) satisfies GetStaticProps<Props>;

@@ -2,9 +2,11 @@ import STORAGE_CONFIG from "@/lib/config/storageConfig";
 import { t } from "@/lib/constants";
 import COURSES_ARRAY from "@/lib/constants/courses";
 import SUBJECT_CODE_ARRAY from "@/lib/constants/subject";
+import toBoolean from "@/lib/utils/toBoolean";
 import { Button, Card, Heading, Select, Text } from "@radix-ui/themes";
 
 import { GetStaticProps, InferGetStaticPropsType } from "next";
+import { useRouter } from "next/router";
 import { useEffect, useState } from "react";
 
 const FileShare = ({
@@ -12,10 +14,43 @@ const FileShare = ({
   courses,
   subjectCode,
 }: InferGetStaticPropsType<typeof getStaticProps>) => {
+  const COURSE_PARAM = "course";
+  const SUBJECT_PARAM = "subjectCode";
+  const router = useRouter();
+
+  const searchParams = new URLSearchParams(router.asPath.split("?")[1]);
+
+  const shouldRedirect = toBoolean(searchParams.get("redirect") || undefined);
+
+  const course = COURSES_ARRAY.includes(
+    searchParams.get(COURSE_PARAM) as (typeof COURSES_ARRAY)[number]
+  )
+    ? (searchParams.get(COURSE_PARAM) as (typeof COURSES_ARRAY)[number])
+    : undefined;
+
+  const subject = SUBJECT_CODE_ARRAY.includes(
+    searchParams.get(SUBJECT_PARAM) as (typeof SUBJECT_CODE_ARRAY)[number]
+  )
+    ? (searchParams.get(SUBJECT_PARAM) as (typeof SUBJECT_CODE_ARRAY)[number])
+    : undefined;
+
+  const getSearchParams = (
+    params: URLSearchParams,
+    currentCourse: (typeof COURSES_ARRAY)[number] | undefined,
+    currentSubject: (typeof SUBJECT_CODE_ARRAY)[number] | undefined,
+    clean?: boolean
+  ) => {
+    if (clean) {
+      params = new URLSearchParams();
+    }
+    params.set(COURSE_PARAM, currentCourse || "");
+    params.set(SUBJECT_PARAM, currentSubject || "");
+    return `?${params.toString()}`;
+  };
+
   const [file, setFile] = useState<File | null>(null);
   const [uploading, setUploading] = useState(false);
-  const [course, setCourse] = useState<(typeof courses)[number]>();
-  const [subject, setSubject] = useState<(typeof subjectCode)[number]>();
+
   const [isDragging, setIsDragging] = useState(false);
 
   const [message, setMessage] = useState<{ success: boolean; text: string }>();
@@ -50,16 +85,6 @@ const FileShare = ({
     }
   };
 
-  const handleCourseChange = (value: string) => {
-    setMessage(undefined);
-    setCourse(value as typeof course);
-  };
-
-  const handleSubjectCodeChange = (value: string) => {
-    setMessage(undefined);
-    setSubject(value as typeof subject);
-  };
-
   const handleUpload = async () => {
     if (!isFormInValid) {
       const formData = new FormData();
@@ -87,11 +112,19 @@ const FileShare = ({
 
   useEffect(() => {
     if (message && message.success) {
-      setCourse(undefined);
-      setSubject(undefined);
       setFile(null);
+      if (shouldRedirect) {
+        window.location.href = `/files${getSearchParams(
+          searchParams,
+          course,
+          subject,
+          true
+        )}`;
+      } else {
+        router.push(getSearchParams(searchParams, undefined, undefined, true));
+      }
     }
-  }, [message]);
+  }, [course, message, router, searchParams, shouldRedirect, subject]);
 
   return (
     <Card className="max-w-sm w-full mx-auto flex! flex-col!">
@@ -104,12 +137,23 @@ const FileShare = ({
       <div className="flex flex-col gap-2">
         <div className="flex flex-col">
           <label>Course:</label>
-          <Select.Root value={course ?? ""} onValueChange={handleCourseChange}>
+          <Select.Root
+            value={course ?? ""}
+            onValueChange={(selectedCourse) => {
+              router.replace(
+                getSearchParams(
+                  searchParams,
+                  selectedCourse as (typeof COURSES_ARRAY)[number],
+                  subject
+                )
+              );
+            }}
+          >
             <Select.Trigger placeholder="Select Course"></Select.Trigger>
             <Select.Content>
-              {courses.map((course) => (
-                <Select.Item key={course} value={course}>
-                  {course}
+              {courses.map((courseItem) => (
+                <Select.Item value={courseItem} key={courseItem}>
+                  {courseItem}
                 </Select.Item>
               ))}
             </Select.Content>
@@ -119,12 +163,27 @@ const FileShare = ({
           <label>Subject:</label>
           <Select.Root
             value={subject ?? ""}
-            onValueChange={handleSubjectCodeChange}
+            onValueChange={(selectedSubject) =>
+              router.replace(
+                getSearchParams(
+                  searchParams,
+                  course,
+                  selectedSubject as (typeof SUBJECT_CODE_ARRAY)[number]
+                )
+              )
+            }
           >
             <Select.Trigger placeholder="Select Subject"></Select.Trigger>
             <Select.Content>
               {subjectCode.map((code) => (
-                <Select.Item key={code} value={code}>
+                <Select.Item
+                  key={code}
+                  value={code}
+                  onClick={() => {
+                    console.log("Router Push===>");
+                    router.replace(getSearchParams(searchParams, course, code));
+                  }}
+                >
                   {code}
                 </Select.Item>
               ))}

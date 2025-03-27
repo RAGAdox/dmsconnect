@@ -8,7 +8,8 @@ import {
   Text,
   TextField,
 } from "@radix-ui/themes";
-import { useRouter } from "next/navigation";
+
+import { useRouter } from "next/router";
 import { useEffect, useState } from "react";
 import { YearRangeSelector } from "../YearRangeSelector";
 
@@ -54,7 +55,7 @@ const OnboardingForm = () => {
         registrationNumber: regNum,
         course: courseName,
         startYear,
-        endYear
+        endYear,
       };
       const response = await fetch("/api/onboard", {
         method: "POST",

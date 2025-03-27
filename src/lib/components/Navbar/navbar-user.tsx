@@ -55,7 +55,7 @@ const NavbarUser = () => {
     return (
       <div>
         <DropdownMenu.Root>
-          <DropdownMenu.Trigger>
+          <DropdownMenu.Trigger tabIndex={0}>
             <div>
               <Avatar
                 fallback={getInitials(user.fullName || user.username || "")}

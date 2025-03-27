@@ -30,5 +30,5 @@ FROM AGG_SUBJECTS;
     const { files } = data[0];
     return files as unknown as IFRecords;
   }
-  return null;
+  return undefined;
 }

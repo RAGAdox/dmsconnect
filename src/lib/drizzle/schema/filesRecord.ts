@@ -15,7 +15,10 @@ export const FileRecord = pgTable("file_record", {
   owner_email: t
     .varchar()
     .notNull()
-    .references(() => Onboarding.emailAddress),
+    .references(() => Onboarding.emailAddress, {
+      onDelete: "cascade",
+      onUpdate: "cascade",
+    }),
   course: course().notNull(),
   subject_code: subjectCode().notNull(),
   file_name: t.varchar().notNull(),
