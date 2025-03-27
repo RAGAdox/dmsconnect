@@ -1,16 +1,10 @@
 import COURSES_ARRAY from "@/lib/constants/courses";
 import { useClerk } from "@clerk/nextjs";
-import {
-  Button,
-  Card,
-  Heading,
-  Select,
-  Text,
-  TextField,
-} from "@radix-ui/themes";
+import { Button, Card, Heading, Select, TextField } from "@radix-ui/themes";
 
 import { useRouter } from "next/router";
 import { useEffect, useState } from "react";
+import { triggerToast } from "../TriggerToast";
 import { YearRangeSelector } from "../YearRangeSelector";
 
 const OnboardingForm = () => {
@@ -64,12 +58,15 @@ const OnboardingForm = () => {
       });
       if (response.ok && session) {
         session.touch().then(() => setSuccess(true));
+        triggerToast("Successfully onboarded", true);
       } else {
         try {
           const data = await response.json();
           setError(data.message);
+          triggerToast(data.message, false);
         } catch {
           setError("An error occurred");
+          triggerToast("An error occured while onboarding", false);
         } finally {
           setPending(false);
         }
@@ -129,10 +126,6 @@ const OnboardingForm = () => {
             setEndYear={setEndYear}
           />
         </div>
-
-        <Text as="p" size="2" align="right" color="red">
-          {error ?? <>&nbsp;</>}
-        </Text>
 
         <div className="flex flex-row flex-1 gap-2 justify-end">
           <Button type="reset" variant="surface">

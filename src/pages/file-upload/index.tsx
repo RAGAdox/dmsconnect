@@ -1,3 +1,4 @@
+import { triggerToast } from "@/lib/components/TriggerToast";
 import STORAGE_CONFIG from "@/lib/config/storageConfig";
 import { t } from "@/lib/constants";
 import COURSES_ARRAY from "@/lib/constants/courses";
@@ -98,12 +99,15 @@ const FileShare = ({
       });
       if (response.ok) {
         setMessage({ success: true, text: "File successfully uploaded" });
+        triggerToast("File successfully updated", true);
       } else {
         try {
           const data = await response.json();
           setMessage({ success: false, text: data.message });
+          triggerToast(data.message, false);
         } catch {
           setMessage({ success: false, text: "Unable to upload" });
+          triggerToast("Unable to upload", false);
         }
       }
       setUploading(false);
@@ -114,15 +118,18 @@ const FileShare = ({
     if (message && message.success) {
       setFile(null);
       if (shouldRedirect) {
-        window.location.href = `/files${getSearchParams(
-          searchParams,
-          course,
-          subject,
-          true
-        )}`;
+        setTimeout(() => {
+          window.location.href = `/files${getSearchParams(
+            searchParams,
+            course,
+            subject,
+            true
+          )}`;
+        }, 1000);
       } else {
         router.push(getSearchParams(searchParams, undefined, undefined, true));
       }
+      setMessage(undefined);
     }
   }, [course, message, router, searchParams, shouldRedirect, subject]);
 
@@ -217,14 +224,6 @@ const FileShare = ({
             </Card>
           </label>
         </div>
-        <Text
-          as="p"
-          size="2"
-          align="right"
-          color={message && message.success ? "green" : "red"}
-        >
-          {message ? message.text : <>&nbsp;</>}
-        </Text>
         <div className="flex flex-row flex-1 gap-2 justify-end">
           <Button
             loading={uploading}
