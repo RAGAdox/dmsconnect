@@ -1,4 +1,4 @@
-import FEATURE_FLAGS from "@/lib/config/featureFlags";
+import FEATURE_FLAGS from "@/config/featureFlags";
 import { Link as RadixLink, Text } from "@radix-ui/themes";
 import { GetServerSideProps, InferGetStaticPropsType } from "next";
 import Link from "next/link";

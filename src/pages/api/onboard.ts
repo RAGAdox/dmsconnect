@@ -1,6 +1,6 @@
 import getDrizzleClient from "@/lib/drizzle";
 import { Onboarding } from "@/lib/drizzle/schema/onboarding";
-import isAllowedEmailDomain from "@/lib/utils/isAllowedEmailDomain";
+import isAllowedEmailDomain from "@/services/isAllowedEmailDomain";
 
 import { clerkClient, getAuth } from "@clerk/nextjs/server";
 import { NextApiRequest, NextApiResponse } from "next";

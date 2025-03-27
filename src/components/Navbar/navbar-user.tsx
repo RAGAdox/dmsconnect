@@ -1,5 +1,5 @@
-import getSessionPublicMetadata from "@/lib/utils/getSessionPublicMetadata";
-import toBoolean from "@/lib/utils/toBoolean";
+import getSessionPublicMetadata from "@/utils/getSessionPublicMetadata";
+import toBoolean from "@/utils/toBoolean";
 import { SignInButton, useClerk, useUser } from "@clerk/nextjs";
 import { Avatar, Button, DropdownMenu, Skeleton, Text } from "@radix-ui/themes";
 import { useRouter } from "next/router";

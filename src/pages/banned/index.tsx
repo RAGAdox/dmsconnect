@@ -1,4 +1,4 @@
-import EMAIL_DOMAINS from "@/lib/constants/emailDomains";
+import EMAIL_DOMAINS from "@/constants/emailDomains";
 import { useClerk } from "@clerk/nextjs";
 
 import { Heading, Link as RadixLink, Text } from "@radix-ui/themes";

@@ -1,4 +1,4 @@
-import { OnboardingForm } from "@/lib/components/OnboardingForm";
+import { OnboardingForm } from "@/components/OnboardingForm";
 
 const Onboarding = () => {
   return <OnboardingForm />;

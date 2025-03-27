@@ -1,4 +1,4 @@
-import COURSES_ARRAY from "@/lib/constants/courses";
+import COURSES_ARRAY from "@/constants/courses";
 import { useClerk } from "@clerk/nextjs";
 import { Button, Card, Heading, Select, TextField } from "@radix-ui/themes";
 

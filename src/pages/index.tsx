@@ -1,5 +1,5 @@
-import FEATURE_FLAGS from "@/lib/config/featureFlags";
-import { t } from "@/lib/constants";
+import FEATURE_FLAGS from "@/config/featureFlags";
+import { t } from "@/constants";
 import { Card, Heading, Link as RadixLink, Text } from "@radix-ui/themes";
 
 import { GetStaticProps, InferGetStaticPropsType } from "next";

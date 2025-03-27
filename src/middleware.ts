@@ -1,8 +1,8 @@
+import FEATURE_FLAGS from "@/config/featureFlags";
+import isAllowedEmailDomain from "@/services/isAllowedEmailDomain";
+import hasRequiredRoles from "@/utils/hasReuiredRoles";
 import { clerkMiddleware, createRouteMatcher } from "@clerk/nextjs/server";
 import { NextRequest, NextResponse } from "next/server";
-import FEATURE_FLAGS from "./lib/config/featureFlags";
-import hasRequiredRoles from "./lib/utils/hasReuiredRoles";
-import isAllowedEmailDomain from "./lib/utils/isAllowedEmailDomain";
 
 const isAPI = createRouteMatcher(["/api(.*)"]);
 

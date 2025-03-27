@@ -1,6 +1,6 @@
 import Link from "next/link";
 
-import { t } from "@/lib/constants";
+import { t } from "@/constants";
 import { Link as RadixLink } from "@radix-ui/themes";
 import { Suspense } from "react";
 import AdditionalButtons from "./additional-buttons";

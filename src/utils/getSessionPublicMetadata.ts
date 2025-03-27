@@ -1,4 +1,4 @@
-import ROLES_ARRAY from "../constants/roles";
+import ROLES_ARRAY from "@/constants/roles";
 
 export default function getSessionPublicMetadata(
   publicMetadata: UserPublicMetadata
