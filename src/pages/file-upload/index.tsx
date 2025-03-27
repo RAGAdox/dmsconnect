@@ -8,7 +8,7 @@ import { Button, Card, Heading, Select, Text } from "@radix-ui/themes";
 
 import { GetStaticProps, InferGetStaticPropsType } from "next";
 import { useRouter } from "next/router";
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 
 const FileShare = ({
   allowedFileTypes,
@@ -19,7 +19,10 @@ const FileShare = ({
   const SUBJECT_PARAM = "subjectCode";
   const router = useRouter();
 
-  const searchParams = new URLSearchParams(router.asPath.split("?")[1]);
+  const searchParams = useMemo(
+    () => new URLSearchParams(router.asPath.split("?")[1]),
+    [router.asPath]
+  );
 
   const shouldRedirect = toBoolean(searchParams.get("redirect") || undefined);
 
