@@ -1,9 +1,10 @@
 import { defineConfig } from "drizzle-kit";
 
-const connectionString = process.env.DATABASE_URL;
+const connectionString = process.env.DRIZZLE_KIT_URL;
 if (!connectionString) {
   throw new Error("Missing DATABASE_URL");
 }
+
 export default defineConfig({
   dbCredentials: {
     url: connectionString,
