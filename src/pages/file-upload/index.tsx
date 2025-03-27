@@ -1,9 +1,9 @@
-import { triggerToast } from "@/lib/components/TriggerToast";
-import STORAGE_CONFIG from "@/lib/config/storageConfig";
-import { t } from "@/lib/constants";
-import COURSES_ARRAY from "@/lib/constants/courses";
-import SUBJECT_CODE_ARRAY from "@/lib/constants/subject";
-import toBoolean from "@/lib/utils/toBoolean";
+import { triggerToast } from "@/components/TriggerToast";
+import STORAGE_CONFIG from "@/config/storageConfig";
+import { t } from "@/constants";
+import COURSES_ARRAY from "@/constants/courses";
+import SUBJECT_CODE_ARRAY from "@/constants/subject";
+import toBoolean from "@/utils/toBoolean";
 import { Button, Card, Heading, Select, Text } from "@radix-ui/themes";
 
 import { GetStaticProps, InferGetStaticPropsType } from "next";

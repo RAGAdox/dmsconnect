@@ -1,11 +1,11 @@
-import FEATURE_FLAGS from "@/lib/config/featureFlags";
-import STORAGE_CONFIG from "@/lib/config/storageConfig";
-import COURSES_ARRAY from "@/lib/constants/courses";
-import SUBJECT_CODE_ARRAY from "@/lib/constants/subject";
+import FEATURE_FLAGS from "@/config/featureFlags";
+import STORAGE_CONFIG from "@/config/storageConfig";
+import COURSES_ARRAY from "@/constants/courses";
+import SUBJECT_CODE_ARRAY from "@/constants/subject";
 import getDrizzleClient from "@/lib/drizzle";
 import { FileRecord } from "@/lib/drizzle/schema/filesRecord";
 import supabaseAdmin from "@/lib/supabase";
-import hasRequiredRoles from "@/lib/utils/hasReuiredRoles";
+import hasRequiredRoles from "@/utils/hasReuiredRoles";
 import { getAuth } from "@clerk/nextjs/server";
 import { IncomingForm } from "formidable";
 import { readFileSync } from "fs";

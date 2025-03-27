@@ -1,4 +1,4 @@
-import toBoolean from "../utils/toBoolean";
+import toBoolean from "@/utils/toBoolean";
 
 const FEATURE_FLAGS = {
   onboarding: {

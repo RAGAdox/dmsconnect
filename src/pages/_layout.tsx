@@ -1,5 +1,5 @@
-import { Footer } from "@/lib/components/Footer";
-import { NavBar } from "@/lib/components/Navbar";
+import { Footer } from "@/components/Footer";
+import { NavBar } from "@/components/Navbar";
 import { Theme } from "@radix-ui/themes";
 import React from "react";
 import { Slide, ToastContainer } from "react-toastify";

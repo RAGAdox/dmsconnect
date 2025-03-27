@@ -1,4 +1,4 @@
-import { t } from "@/lib/constants";
+import { t } from "@/constants";
 import { ClerkProvider } from "@clerk/nextjs";
 import type { AppProps } from "next/app";
 import Head from "next/head";

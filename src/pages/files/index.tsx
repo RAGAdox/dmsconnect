@@ -1,4 +1,4 @@
-import getFileRecord from "@/lib/utils/getFileRecord";
+import getFileRecord from "@/services/getFileRecord";
 import {
   Avatar,
   ContextMenu,

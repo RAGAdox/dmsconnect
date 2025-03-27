@@ -1,5 +1,5 @@
+import getDrizzleClient from "@/lib/drizzle";
 import { sql } from "drizzle-orm";
-import getDrizzleClient from "../drizzle";
 
 export default async function getFileRecord() {
   const drizzle = getDrizzleClient();

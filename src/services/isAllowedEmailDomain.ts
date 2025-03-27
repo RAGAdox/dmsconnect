@@ -1,6 +1,7 @@
 import { EmailAddress } from "@clerk/nextjs/server";
-import FEATURE_FLAGS from "../config/featureFlags";
-import EMAIL_DOMAINS from "../constants/emailDomains";
+
+import FEATURE_FLAGS from "@/config/featureFlags";
+import EMAIL_DOMAINS from "@/constants/emailDomains";
 
 export default function isAllowedEmailDomain(
   emailAddresses: EmailAddress[] | string

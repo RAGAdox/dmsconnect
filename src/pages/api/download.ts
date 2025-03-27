@@ -1,6 +1,6 @@
-import STORAGE_CONFIG from "@/lib/config/storageConfig";
-import COURSES_ARRAY from "@/lib/constants/courses";
-import SUBJECT_CODE_ARRAY from "@/lib/constants/subject";
+import STORAGE_CONFIG from "@/config/storageConfig";
+import COURSES_ARRAY from "@/constants/courses";
+import SUBJECT_CODE_ARRAY from "@/constants/subject";
 import supabaseAdmin from "@/lib/supabase";
 import { getAuth } from "@clerk/nextjs/server";
 import { NextApiRequest, NextApiResponse } from "next";

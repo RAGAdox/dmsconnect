@@ -1,6 +1,6 @@
-import COURSES_ARRAY from "@/lib/constants/courses";
-import ROLES_ARRAY from "@/lib/constants/roles";
-import SUBJECT_CODE_ARRAY from "@/lib/constants/subject";
+import COURSES_ARRAY from "@/constants/courses";
+import ROLES_ARRAY from "@/constants/roles";
+import SUBJECT_CODE_ARRAY from "@/constants/subject";
 
 declare global {
   interface OnboardingArgs {
