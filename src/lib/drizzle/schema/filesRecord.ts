@@ -22,5 +22,5 @@ export const FileRecord = pgTable("file_record", {
   course: course().notNull(),
   subject_code: subjectCode().notNull(),
   file_name: t.varchar().notNull(),
-  file_id: t.uuid().notNull(),
+  file_id: t.uuid().primaryKey(),
 }).enableRLS();
