@@ -1,5 +1,6 @@
 import getDrizzleClient from "@/lib/drizzle";
 import { Onboarding } from "@/lib/drizzle/schema/onboarding";
+import getPredefinedRoles from "@/services/getPredefinedRoles";
 import isAllowedEmailDomain from "@/services/isAllowedEmailDomain";
 
 import { clerkClient, getAuth } from "@clerk/nextjs/server";
@@ -26,12 +27,13 @@ export default async function handler(
   }
   const client = await clerkClient();
 
-  /* Get Email */
   if (!isAllowedEmailDomain(sessionClaims.email)) {
     return res.status(403).json({ message: "Access Denied" });
   }
+
   const drizzle = getDrizzleClient();
   try {
+    const predefinedRoles = await getPredefinedRoles(sessionClaims.email);
     await drizzle.insert(Onboarding).values({
       course,
       reg_number: registrationNumber,
@@ -42,7 +44,7 @@ export default async function handler(
     });
     const newPublicMetadata: SessionPublicMetadata = {
       onboardingComplete: true,
-      roles: ["user"],
+      roles: predefinedRoles ? predefinedRoles : ["user"],
     };
     const { publicMetadata } = await client.users.updateUser(sessionClaims.id, {
       publicMetadata: newPublicMetadata as unknown as UserPublicMetadata,
