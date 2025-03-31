@@ -1,0 +1,56 @@
+generator client {
+  provider = "prisma-client-js"
+  output   = "../generated/prisma"
+}
+
+datasource db {
+  provider  = "postgresql"
+  url       = env("DATABASE_URL")
+  // directUrl = env("DIRECT_URL")
+}
+
+/// This model contains row level security and requires additional setup for migrations. Visit https://pris.ly/d/row-level-security for more info.
+model file_record {
+  owner_email  String       @db.VarChar
+  course       course
+  subject_code subject_code
+  file_name    String       @db.VarChar
+  file_id      String       @id @db.Uuid
+  onboarding   onboarding   @relation(fields: [owner_email], references: [emailAddress], onDelete: Cascade, map: "file_record_owner_email_onboarding_emailAddress_fk")
+}
+
+/// This table contains check constraints and requires additional setup for migrations. Visit https://pris.ly/d/check-constraints for more info.
+/// This model contains row level security and requires additional setup for migrations. Visit https://pris.ly/d/row-level-security for more info.
+model onboarding {
+  course       course
+  reg_number   String?       @db.VarChar(10)
+  user_id      String        @db.VarChar
+  emailAddress String        @id @db.VarChar
+  startYear    Int           @db.SmallInt
+  endYear      Int           @db.SmallInt
+  file_record  file_record[]
+}
+
+/// This model contains row level security and requires additional setup for migrations. Visit https://pris.ly/d/row-level-security for more info.
+model predefined_user_roles {
+  roles roles[]
+  id    String  @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  email String  @unique(map: "predefined_user_roles_email_unique")
+}
+
+enum course {
+  M_B_A @map("M.B.A")
+  B_B_A @map("B.B.A")
+}
+
+enum roles {
+  admin
+  user
+  moderator
+}
+
+enum subject_code {
+  D_S_A_301_ @map("D.S.A(301)")
+  FIEM_302_  @map("FIEM(302)")
+  FINAL_304_ @map("FINAL(304)")
+}
