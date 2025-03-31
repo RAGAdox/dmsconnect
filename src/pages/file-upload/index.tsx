@@ -1,9 +1,11 @@
 import { triggerToast } from "@/components/TriggerToast";
 import STORAGE_CONFIG from "@/config/storageConfig";
 import { t } from "@/constants";
-import COURSES_ARRAY from "@/constants/courses";
-import SUBJECT_CODE_ARRAY from "@/constants/subject";
+import courseMapper from "@/utils/mappers/courseMapper";
+import subjectMapper from "@/utils/mappers/subjectMapper";
+
 import toBoolean from "@/utils/toBoolean";
+import { $Enums } from "@prisma/client";
 import { Button, Card, Heading, Select, Text } from "@radix-ui/themes";
 
 import { GetStaticProps, InferGetStaticPropsType } from "next";
@@ -12,8 +14,6 @@ import { useEffect, useMemo, useState } from "react";
 
 const FileShare = ({
   allowedFileTypes,
-  courses,
-  subjectCode,
 }: InferGetStaticPropsType<typeof getStaticProps>) => {
   const COURSE_PARAM = "course";
   const SUBJECT_PARAM = "subjectCode";
@@ -26,22 +26,22 @@ const FileShare = ({
 
   const shouldRedirect = toBoolean(searchParams.get("redirect") || undefined);
 
-  const course = COURSES_ARRAY.includes(
-    searchParams.get(COURSE_PARAM) as (typeof COURSES_ARRAY)[number]
-  )
-    ? (searchParams.get(COURSE_PARAM) as (typeof COURSES_ARRAY)[number])
+  const course = courseMapper
+    .getCourseKeys()
+    .includes(searchParams.get(COURSE_PARAM) as $Enums.course)
+    ? (searchParams.get(COURSE_PARAM) as $Enums.course)
     : undefined;
 
-  const subject = SUBJECT_CODE_ARRAY.includes(
-    searchParams.get(SUBJECT_PARAM) as (typeof SUBJECT_CODE_ARRAY)[number]
-  )
-    ? (searchParams.get(SUBJECT_PARAM) as (typeof SUBJECT_CODE_ARRAY)[number])
+  const subject = subjectMapper
+    .getSubjectKeys()
+    .includes(searchParams.get(SUBJECT_PARAM) as $Enums.subject_code)
+    ? (searchParams.get(SUBJECT_PARAM) as $Enums.subject_code)
     : undefined;
 
   const getSearchParams = (
     params: URLSearchParams,
-    currentCourse: (typeof COURSES_ARRAY)[number] | undefined,
-    currentSubject: (typeof SUBJECT_CODE_ARRAY)[number] | undefined,
+    currentCourse: $Enums.course | undefined,
+    currentSubject: $Enums.subject_code | undefined,
     clean?: boolean
   ) => {
     if (clean) {
@@ -149,23 +149,21 @@ const FileShare = ({
           <label>Course:</label>
           <Select.Root
             value={course ?? ""}
-            onValueChange={(selectedCourse) => {
+            onValueChange={(selectedCourse: $Enums.course) => {
               router.replace(
-                getSearchParams(
-                  searchParams,
-                  selectedCourse as (typeof COURSES_ARRAY)[number],
-                  subject
-                )
+                getSearchParams(searchParams, selectedCourse, subject)
               );
             }}
           >
             <Select.Trigger placeholder="Select Course"></Select.Trigger>
             <Select.Content>
-              {courses.map((courseItem) => (
-                <Select.Item value={courseItem} key={courseItem}>
-                  {courseItem}
-                </Select.Item>
-              ))}
+              {courseMapper.getCourseKeys().map((courseEnumkey) => {
+                return (
+                  <Select.Item value={courseEnumkey} key={courseEnumkey}>
+                    {courseMapper.getCourseName(courseEnumkey)}
+                  </Select.Item>
+                );
+              })}
             </Select.Content>
           </Select.Root>
         </div>
@@ -178,23 +176,16 @@ const FileShare = ({
                 getSearchParams(
                   searchParams,
                   course,
-                  selectedSubject as (typeof SUBJECT_CODE_ARRAY)[number]
+                  selectedSubject as $Enums.subject_code
                 )
               )
             }
           >
             <Select.Trigger placeholder="Select Subject"></Select.Trigger>
             <Select.Content>
-              {subjectCode.map((code) => (
-                <Select.Item
-                  key={code}
-                  value={code}
-                  onClick={() => {
-                    console.log("Router Push===>");
-                    router.replace(getSearchParams(searchParams, course, code));
-                  }}
-                >
-                  {code}
+              {subjectMapper.getSubjectKeys().map((subjectKey) => (
+                <Select.Item key={subjectKey} value={subjectKey}>
+                  {subjectMapper.getSubjectName(subjectKey)}
                 </Select.Item>
               ))}
             </Select.Content>
@@ -246,14 +237,10 @@ export const getStaticProps = (() => {
   return {
     props: {
       allowedFileTypes: STORAGE_CONFIG.ALLOWED_FILE_TYPES,
-      courses: COURSES_ARRAY,
-      subjectCode: SUBJECT_CODE_ARRAY,
     },
   };
 }) satisfies GetStaticProps<{
   allowedFileTypes: string;
-  courses: typeof COURSES_ARRAY;
-  subjectCode: typeof SUBJECT_CODE_ARRAY;
 }>;
 
 export default FileShare;

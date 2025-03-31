@@ -1,0 +1,61 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider  = "postgresql"
+  url       = env("DATABASE_URL")
+  directUrl = env("DIRECT_URL")
+}
+
+enum course {
+  mba
+  bba
+}
+
+enum roles {
+  admin
+  user
+  moderator
+}
+
+enum subject_code {
+  AMFA
+  ME
+  OB
+  MKT
+  OM
+  FMCM
+  HRM
+  SM
+  IT
+  BC
+  LBE
+  RM
+  BECG
+  ED
+}
+
+model predefined_user_roles {
+  roles roles[]
+  email String  @id
+}
+
+model onboarding {
+  course       course
+  reg_number   String        @unique @db.VarChar(10)
+  user_id      String        @unique @db.VarChar
+  emailAddress String        @id @db.VarChar
+  startYear    Int           @db.SmallInt
+  endYear      Int           @db.SmallInt
+  file_record  file_record[]
+}
+
+model file_record {
+  owner_email  String       @db.VarChar
+  course       course
+  subject_code subject_code
+  file_name    String       @db.VarChar
+  file_id      String       @id @db.Uuid
+  onboarding   onboarding   @relation(fields: [owner_email], references: [emailAddress], onDelete: Cascade)
+}

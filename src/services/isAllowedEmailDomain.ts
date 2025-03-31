@@ -4,7 +4,7 @@ import FEATURE_FLAGS from "@/config/featureFlags";
 import EMAIL_DOMAINS from "@/constants/emailDomains";
 
 export default function isAllowedEmailDomain(
-  emailAddresses: EmailAddress[] | string
+  emailAddresses: EmailAddress[] | string 
 ) {
   if (FEATURE_FLAGS.check_email_domains.enabled) {
     if (Array.isArray(emailAddresses)) {

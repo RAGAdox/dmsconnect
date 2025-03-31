@@ -1,10 +1,9 @@
-import getDrizzleClient from "@/lib/drizzle";
-import { sql } from "drizzle-orm";
+import getPrisma from "@/lib/prisma";
 
 export default async function getFileRecord() {
-  const drizzle = getDrizzleClient();
-  const fileRetrivalQuery = drizzle.execute(sql`
-WITH AGG_FILE_RECORD_BY_FILENAME AS (
+  const prisma = getPrisma();
+
+  const data = await prisma.$queryRaw`WITH AGG_FILE_RECORD_BY_FILENAME AS (
     SELECT
         fr.course AS course,
         fr.subject_code AS subject_code,
@@ -22,13 +21,11 @@ AGG_SUBJECTS AS (
     GROUP BY course
 )
 SELECT jsonb_object_agg(course, subject_object) as files
-FROM AGG_SUBJECTS;
-    `);
-  const data = await fileRetrivalQuery;
+FROM AGG_SUBJECTS;`;
 
-  if (data && data.length === 1) {
+  if (data && Array.isArray(data) && data.length > 0) {
     const { files } = data[0];
-    return files as unknown as IFRecords;
+    return files as IFRecords;
   }
-  return undefined;
+  return {} as IFRecords;
 }

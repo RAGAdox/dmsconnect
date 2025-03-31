@@ -1,12 +1,10 @@
 import FEATURE_FLAGS from "@/config/featureFlags";
 import STORAGE_CONFIG from "@/config/storageConfig";
-import COURSES_ARRAY from "@/constants/courses";
-import SUBJECT_CODE_ARRAY from "@/constants/subject";
-import getDrizzleClient from "@/lib/drizzle";
-import { FileRecord } from "@/lib/drizzle/schema/filesRecord";
 import supabaseAdmin from "@/lib/supabase";
+import storeFileRecord from "@/services/storeFileRecord";
 import hasRequiredRoles from "@/utils/hasReuiredRoles";
 import { getAuth } from "@clerk/nextjs/server";
+import { $Enums } from "@prisma/client";
 import { IncomingForm } from "formidable";
 import { readFileSync } from "fs";
 import { NextApiRequest, NextApiResponse } from "next";
@@ -47,8 +45,12 @@ export default async function handler(
   const form = new IncomingForm({ multiples: false, uploadDir: "/tmp" });
 
   const [fields, files] = await form.parse(req);
-  const course = fields.course ? fields.course[0] : undefined;
-  const subjectCode = fields.subjectCode ? fields.subjectCode[0] : undefined;
+  const course = fields.course
+    ? (fields.course[0] as $Enums.course)
+    : undefined;
+  const subjectCode = fields.subjectCode
+    ? (fields.subjectCode[0] as $Enums.subject_code)
+    : undefined;
   const fileKey = Object.keys(files)[0];
   if (
     !course ||
@@ -72,19 +74,24 @@ export default async function handler(
     });
 
   if (storageResponse.error) {
+    console.error("Error uploading file to S3:", storageResponse.error);
     return res.status(500).json({ message: "Unable to upload to S3" });
   }
 
   try {
-    const drizzle = getDrizzleClient();
-    await drizzle.insert(FileRecord).values({
-      owner_email: sessionClaims.email,
-      course: course as (typeof COURSES_ARRAY)[number],
-      subject_code: subjectCode as (typeof SUBJECT_CODE_ARRAY)[number],
+    await storeFileRecord({
+      course,
+      subject_code: subjectCode,
       file_name: fileName,
       file_id: storageResponse.data.id,
+      onboarding: {
+        connect: {
+          emailAddress: sessionClaims.email,
+        },
+      },
     });
-  } catch {
+  } catch (error) {
+    console.error("Error storing file record in DB:", error);
     await supabaseAdmin.storage
       .from(STORAGE_CONFIG.BUCKET_ID)
       .remove([`uploads/${course}/${subjectCode}/${fileName}`]);
