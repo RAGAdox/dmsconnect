@@ -1,18 +1,16 @@
-import COURSES_ARRAY from "@/constants/courses";
-import ROLES_ARRAY from "@/constants/roles";
-import SUBJECT_CODE_ARRAY from "@/constants/subject";
+import { $Enums } from "@prisma/client";
 
 declare global {
   interface OnboardingArgs {
     registrationNumber: string;
-    course: (typeof COURSES_ARRAY)[number];
+    course: $Enums.course;
     startYear: number;
     endYear: number;
   }
 
   interface SessionPublicMetadata {
     onboardingComplete: boolean;
-    roles: (typeof ROLES_ARRAY)[number][];
+    roles: $Enums.roles[];
   }
 
   interface CustomJwtSessionClaims extends JwtPayload {
@@ -32,10 +30,10 @@ declare global {
   }
 
   interface IFSubjectRecords {
-    [key: (typeof SUBJECT_CODE_ARRAY)[number]]: IFFiles[];
+    [key: $Enums.subject_code]: IFFiles[];
   }
 
   interface IFRecords {
-    [key: (typeof COURSES_ARRAY)[number]]: IFSubjectRecords;
+    [key: $Enums.course]: IFSubjectRecords;
   }
 }

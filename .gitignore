@@ -43,3 +43,9 @@ next-env.d.ts
 
 # vscode
 .vscode
+
+#prisma
+generated/prisma/
+
+#Certificates
+certificates

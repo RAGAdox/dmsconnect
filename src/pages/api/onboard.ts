@@ -1,7 +1,6 @@
-import getDrizzleClient from "@/lib/drizzle";
-import { Onboarding } from "@/lib/drizzle/schema/onboarding";
 import getPredefinedRoles from "@/services/getPredefinedRoles";
 import isAllowedEmailDomain from "@/services/isAllowedEmailDomain";
+import onboardUser from "@/services/onboardUser";
 
 import { clerkClient, getAuth } from "@clerk/nextjs/server";
 import { NextApiRequest, NextApiResponse } from "next";
@@ -17,7 +16,8 @@ export default async function handler(
   const { course, registrationNumber, endYear, startYear } =
     req.body as OnboardingArgs;
 
-  if (!course || !registrationNumber) {
+  /* Use Zod */
+  if (!course || !registrationNumber || !endYear || !startYear) {
     return res.status(400).json({ message: "Invalid Request" });
   }
 
@@ -35,17 +35,22 @@ export default async function handler(
     return res.status(403).json({ message: "Access Denied" });
   }
 
-  const drizzle = getDrizzleClient();
   try {
     const predefinedRoles = await getPredefinedRoles(sessionClaims.email);
-    await drizzle.insert(Onboarding).values({
+
+    const onboardedUser = await onboardUser({
       course,
-      reg_number: registrationNumber,
-      user_id: sessionClaims.id,
       emailAddress: sessionClaims.email,
       endYear,
       startYear,
+      reg_number: registrationNumber,
+      user_id: sessionClaims.id,
     });
+
+    if (!onboardedUser) {
+      throw new Error("Unable to onboard user");
+    }
+
     const newPublicMetadata: SessionPublicMetadata = {
       onboardingComplete: true,
       roles: predefinedRoles ? predefinedRoles : ["user"],

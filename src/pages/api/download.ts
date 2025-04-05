@@ -1,8 +1,10 @@
 import STORAGE_CONFIG from "@/config/storageConfig";
-import COURSES_ARRAY from "@/constants/courses";
-import SUBJECT_CODE_ARRAY from "@/constants/subject";
+
 import supabaseAdmin from "@/lib/supabase";
+import courseMapper from "@/utils/mappers/courseMapper";
+import subjectMapper from "@/utils/mappers/subjectMapper";
 import { getAuth } from "@clerk/nextjs/server";
+import { $Enums } from "@prisma/client";
 import { NextApiRequest, NextApiResponse } from "next";
 import { Readable } from "node:stream";
 
@@ -25,18 +27,18 @@ export default async function handler(
   const basePath = "/uploads";
   const { query } = req;
 
-  const course = typeof query.course === "string" ? query.course : undefined;
-  const subject = typeof query.subject === "string" ? query.subject : undefined;
+  const course =
+    typeof query.course === "string" && courseMapper.isValidKey(query.course)
+      ? (query.course as $Enums.course)
+      : undefined;
+  const subject =
+    typeof query.subject === "string" && subjectMapper.isValidKey(query.subject)
+      ? (query.subject as $Enums.subject_code)
+      : undefined;
   const fileName =
     typeof query.fileName === "string" ? query.fileName : undefined;
 
-  if (
-    !fileName ||
-    !course ||
-    !subject ||
-    !COURSES_ARRAY.includes(course as (typeof COURSES_ARRAY)[number]) ||
-    !SUBJECT_CODE_ARRAY.includes(subject as (typeof SUBJECT_CODE_ARRAY)[number])
-  ) {
+  if (!fileName || !course || !subject) {
     return res.status(400).json({ message: "Bad Request" });
   }
 

@@ -1,7 +1,8 @@
-import COURSES_ARRAY from "@/constants/courses";
 import { useClerk } from "@clerk/nextjs";
 import { Button, Card, Heading, Select, TextField } from "@radix-ui/themes";
 
+import courseMapper from "@/utils/mappers/courseMapper";
+import { $Enums } from "@prisma/client";
 import { useRouter } from "next/router";
 import { useEffect, useState } from "react";
 import { triggerToast } from "../TriggerToast";
@@ -15,8 +16,7 @@ const OnboardingForm = () => {
   const [pending, setPending] = useState(false);
   const [error, setError] = useState<string>();
   const [regNum, setRegNumber] = useState<string>("");
-  const [courseName, setCourseName] =
-    useState<(typeof COURSES_ARRAY)[number]>();
+  const [courseName, setCourseName] = useState<$Enums.course>();
   const [startYear, setStartYear] = useState<number>();
   const [endYear, setEndYear] = useState<number>();
 
@@ -37,7 +37,7 @@ const OnboardingForm = () => {
     }
   };
 
-  const handleCourseNameChange = (val: (typeof COURSES_ARRAY)[number]) => {
+  const handleCourseNameChange = (val: $Enums.course) => {
     setError(undefined);
     setCourseName(val);
   };
@@ -109,9 +109,11 @@ const OnboardingForm = () => {
           >
             <Select.Trigger placeholder="Select a Course" />
             <Select.Content>
-              {COURSES_ARRAY.map((value) => (
-                <Select.Item key={value} value={value}>
-                  {value}
+              {Object.keys($Enums.course).map((courseKey) => (
+                <Select.Item key={courseKey} value={courseKey}>
+                  {courseMapper.getCourseName(
+                    courseKey as keyof typeof $Enums.course
+                  )}
                 </Select.Item>
               ))}
             </Select.Content>

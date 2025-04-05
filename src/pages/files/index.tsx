@@ -1,4 +1,6 @@
 import getFileRecord from "@/services/getFileRecord";
+import courseMapper from "@/utils/mappers/courseMapper";
+import subjectMapper from "@/utils/mappers/subjectMapper";
 import {
   Avatar,
   ContextMenu,
@@ -60,7 +62,7 @@ const FileExplorer = ({
         className="flex flex-col flex-1"
       >
         <Tabs.List className="flex">
-          {Object.keys(files).map((course) => (
+          {(Object.keys(files) as (keyof IFRecords)[]).map((course) => (
             <Link
               key={course}
               tabIndex={-1}
@@ -68,13 +70,17 @@ const FileExplorer = ({
                 course
               )}&subjectCode=${encodeURIComponent(currentSubjectCode)}`}
             >
-              <Tabs.Trigger value={course}>{course}</Tabs.Trigger>
+              <Tabs.Trigger value={course}>
+                {courseMapper.getCourseName(course)}
+              </Tabs.Trigger>
             </Link>
           ))}
         </Tabs.List>
         <div className="flex-1 flex flex-row">
           <div className="flex-1/3 md:flex-1/4 flex flex-col min-h-full gap-2 p-2">
-            {Object.keys(files[currentCourse]).map((subjectCode) => (
+            {(
+              Object.keys(files[currentCourse]) as (keyof IFSubjectRecords)[]
+            ).map((subjectCode) => (
               <RadixLink
                 weight={currentSubjectCode === subjectCode ? "bold" : "regular"}
                 key={subjectCode}
@@ -85,7 +91,7 @@ const FileExplorer = ({
                     currentCourse
                   )}&subjectCode=${encodeURIComponent(subjectCode)}`}
                 >
-                  {subjectCode}
+                  {subjectMapper.getSubjectName(subjectCode)}
                 </Link>
               </RadixLink>
             ))}
