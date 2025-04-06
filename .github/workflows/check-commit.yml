@@ -42,7 +42,7 @@ jobs:
       - name: Install packages
         run: |
           yarn install && \
-          yarn add -g vercel@latest
+          yarn global add vercel@latest
       - name: Check migration
         run: yarn run migrate:check
       - name: Link project
