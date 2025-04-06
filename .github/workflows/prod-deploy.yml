@@ -1,0 +1,26 @@
+name: Prod Deploy
+on:
+  push:
+    branches: ["main"]
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        node-version: [22.x]
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v2
+      - name: Setup Node Environment
+        uses: actions/setup-node@v4
+      - name: Install packages
+        run: |
+          npm install -g pnpm && \
+          pnpm run ci
+      - name: Check Build & Test
+        run: pnpm run build
+      - name: Apply Migrations
+        run: pnpm run migrate:up
+      - name: Deploy
+        run: echo "Deploying to production..."
