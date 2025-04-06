@@ -6,10 +6,29 @@ on:
 
 jobs:
   deploy:
+    environment:
+      name: production
     runs-on: ubuntu-latest
     strategy:
       matrix:
         node-version: [22.x]
+    env:
+      NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY: ${{secrets.NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY}}
+      CLERK_SECRET_KEY: ${{secrets.CLERK_SECRET_KEY}}
+      NEXT_PUBLIC_CLERK_SIGN_UP_FORCE_REDIRECT_URL: ${{secrets.NEXT_PUBLIC_CLERK_SIGN_UP_FORCE_REDIRECT_URL}}
+      NEXT_PUBLIC_CLEKT_SIGN_IN_FORCE_REDIRECT_URL: ${{secrets.NEXT_PUBLIC_CLEKT_SIGN_IN_FORCE_REDIRECT_URL}}
+      NEXT_PUBLIC_SUPABASE_URL: ${{secrets.NEXT_PUBLIC_SUPABASE_URL}}
+      SUPABASE_SERVICE_ROLE_KEY: ${{secrets.SUPABASE_SERVICE_ROLE_KEY}}
+      DATABASE_URL: ${{secrets.DATABASE_URL}}
+      DIRECT_URL: ${{secrets.DIRECT_URL}}
+      SHADOW_DB_URL: ${{secrets.SHADOW_DB_URL}}
+      EMAIL_DOMAINS: ${{secrets.EMAIL_DOMAINS}}
+      STORAGE_BUCKET_ID: ${{secrets.STORAGE_BUCKET_ID}}
+      STORAGE_BUCKET_ALLOWED_FILE_TYPES: ${{secrets.STORAGE_BUCKET_ALLOWED_FILE_TYPES}}
+      FEATURE_FLAG_FILE_VIEW: ${{secrets.FEATURE_FLAG_FILE_VIEW}}
+      FEATURE_FLAG_FILE_UPLOAD: ${{secrets.FEATURE_FLAG_FILE_UPLOAD}}
+      FEATURE_FLAG_ONBOARDING: ${{secrets.FEATURE_FLAG_ONBOARDING}}
+      FEATURE_FLAG_CHECK_EMAIL_DOMAINS: ${{secrets.FEATURE_FLAG_CHECK_EMAIL_DOMAINS}}
     steps:
       - name: Checkout Code
         uses: actions/checkout@v3
@@ -19,11 +38,10 @@ jobs:
           node-version: ${{ matrix.node-version }}
       - name: Install packages
         run: |
-          npm install -g pnpm && \
-          pnpm install
+          yarn install
       - name: Check Build & Test
-        run: pnpm run build
+        run: yarn run build
       - name: Apply Migrations
-        run: pnpm run migrate:up
+        run: yarn run migrate:up
       - name: Deploy
         run: echo "Deploying to production..."

@@ -22,4 +22,4 @@ else
   set +a
 fi
 
-pnpm dlx prisma migrate reset
+yarn prisma migrate reset

@@ -41,14 +41,10 @@ jobs:
           node-version: ${{ matrix.node-version }}
       - name: Install packages
         run: |
-          npm install -g pnpm@10.7.1 && \
-          export SHELL=/usr/bin/bash && \
-          pnpm setup && \
-          echo "$(pnpm config get global-bin-dir)" >> $GITHUB_PATH && \
-          pnpm install && \
-          pnpm add -g vercel@latest
+          yarn install && \
+          yarn add -g vercel@latest
       - name: Check migration
-        run: pnpm run migrate:check
+        run: yarn run migrate:check
       - name: Link project
         run: vercel link --yes --token=${{secrets.VERCEL_TOKEN}}
       - name: Pull Vercel Configs

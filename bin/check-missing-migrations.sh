@@ -17,7 +17,7 @@ else
 fi
 set +a
 
-pnpm dlx prisma migrate diff \
+yarn prisma migrate diff \
   --to-schema-datamodel prisma/schema.prisma \
   --from-migrations prisma/migrations \
   --shadow-database-url $SHADOW_DB_URL \

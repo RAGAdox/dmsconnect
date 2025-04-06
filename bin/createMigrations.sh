@@ -20,4 +20,4 @@ else
   fi
   set +a
 fi
-pnpm dlx prisma migrate dev --create-only
+yarn prisma migrate dev --create-only

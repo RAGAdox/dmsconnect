@@ -24,6 +24,6 @@ else
 fi
 set +a
 
-pnpm dlx prisma migrate deploy && \
-pnpm dlx prisma db seed
+yarn prisma migrate deploy && \
+yarn prisma db seed
 

@@ -1,2 +1,2 @@
-pnpm run migrate:check
-pnpm run lint
+yarn run migrate:check
+yarn run lint
