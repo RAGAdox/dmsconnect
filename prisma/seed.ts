@@ -51,7 +51,7 @@ const seedPredefinedUsers = async () => {
  */
 
 async function seeder() {
-  /** Currently cross referencing schema is not stable in prisma. This cross reference is used in the case of deletiion of file using supabase dashboard or ther mechanisms. For production we should implement direct S3 uploads using S3 access key and only store these data in our schema */
+  /** Currently cross referencing schema is not stable in prisma. This cross reference is used in the case of deletion of file using supabase dashboard or other mechanisms. For production we should implement direct S3 uploads using S3 access key and only store these data in our schema */
   // await createCrossSchemaReferences();
   await seedPredefinedUsers();
 }
