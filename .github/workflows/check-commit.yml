@@ -39,11 +39,11 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: ${{ matrix.node-version }}
-      - name: Check
-        run: echo "${NEXT_PUBLIC_CLERK_SIGN_UP_FORCE_REDIRECT_URL}"
       - name: Install packages
         run: |
           npm install -g pnpm@10.7.1 && \
           pnpm install
       - name: Check Build & Test
         run: pnpm run build
+      - name: Check migration
+        run: pnpm run migrate:check
