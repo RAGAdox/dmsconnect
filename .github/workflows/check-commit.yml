@@ -8,7 +8,7 @@ on:
 jobs:
   build:
     environment:
-      name: production
+      name: preview
     runs-on: ubuntu-latest
     strategy:
       matrix:
