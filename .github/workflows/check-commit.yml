@@ -44,6 +44,8 @@ jobs:
           node-version: ${{ matrix.node-version }}
       - name: Push Secrets to Vercel
         run: ./bin/vercel/sync-env.sh
+        env:
+          DOPPLER_TOKEN: ${{secrets.DOPPLER_TOKEN}}
       - name: Install packages
         run: |
           yarn install && \
