@@ -42,6 +42,7 @@ jobs:
       - name: Install packages
         run: |
           npm install -g pnpm@10.7.1 && \
+          pnpm setup && \
           pnpm install && \
           pnpm add -g vercel@latest
       - name: Check migration
