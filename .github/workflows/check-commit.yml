@@ -42,8 +42,15 @@ jobs:
       - name: Install packages
         run: |
           npm install -g pnpm@10.7.1 && \
-          pnpm install
-      - name: Check Build & Test
-        run: pnpm run build
+          pnpm install && \
+          pnpm add -g vercel@latest
       - name: Check migration
         run: pnpm run migrate:check
+      - name: Link project
+        run: vercel link --yes --token=${{secrets.VERCEL_TOKEN}}
+      - name: Pull Vercel Configs
+        run: vercel pull --yes --environment=preview --token=${{secrets.VERCEL_TOKEN}}
+      - name: Build Vercel Artifact
+        run: vercel build --token=${{secrets.VERCEL_TOKEN}}
+      - name: Deploy to preview environment
+        run: vercel deploy --prebuilt --token=${{secrets.VERCEL_TOKEN}}
