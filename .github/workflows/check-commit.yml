@@ -1,29 +1,28 @@
-name: Prod Deploy
+name: Run Build on PRs
+
 on:
-  push:
+  pull_request:
     branches:
-      - "main"
+      - main
 
 jobs:
-  deploy:
+  build:
     runs-on: ubuntu-latest
     strategy:
       matrix:
         node-version: [22.x]
     steps:
-      - name: Checkout Code
+      - name: Checkout code
         uses: actions/checkout@v3
-      - name: Setup Node Environment
+
+      - name: Set up Node.js
         uses: actions/setup-node@v4
         with:
           node-version: ${{ matrix.node-version }}
+
       - name: Install packages
         run: |
           npm install -g pnpm && \
           pnpm run ci
       - name: Check Build & Test
         run: pnpm run build
-      - name: Apply Migrations
-        run: pnpm run migrate:up
-      - name: Deploy
-        run: echo "Deploying to production..."

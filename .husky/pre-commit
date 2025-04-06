@@ -1,1 +1,2 @@
-pnpm lint
+pnpm run migrate:check
+pnpm run lint

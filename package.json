@@ -17,7 +17,8 @@
     "postinstall": "prisma generate",
     "migrate:up": "./bin/migrate.sh",
     "migrate:create": "./bin/createMigration.sh",
-    "migrate:reset": "prisma migrate reset",
+    "migrate:reset": "./bin/reset.sh",
+    "migrate:check": "./bin/check-missing-migrations.sh",
     "prepare": "husky"
   },
   "prisma": {
