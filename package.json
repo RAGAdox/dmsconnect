@@ -8,7 +8,6 @@
   "packageManager": "pnpm@10.7.1",
   "scripts": {
     "clean": "rm -rf node_modules && rm -rf .next",
-    "ci": "./bin/install.sh",
     "dev": "cross-env NODE_ENV=development next dev --turbopack --experimental-https",
     "build": "next build",
     "start": "next start",

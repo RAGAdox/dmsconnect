@@ -20,7 +20,7 @@ jobs:
       - name: Install packages
         run: |
           npm install -g pnpm && \
-          pnpm run ci
+          pnpm install
       - name: Check Build & Test
         run: pnpm run build
       - name: Apply Migrations
