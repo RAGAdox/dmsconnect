@@ -31,3 +31,7 @@ while IFS='=' read -r key raw_value || [[ -n "$key" ]]; do
 done < "$ENV_FILE"
 
 echo "✅ Done syncing all variables from .env to Vercel (preview)."
+
+echo "Removing .env"
+
+rm .env
