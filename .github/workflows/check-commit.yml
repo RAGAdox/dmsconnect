@@ -48,14 +48,14 @@ jobs:
           yarn global add vercel@latest
       - name: Check migration
         run: yarn run migrate:check
+      - name: Link project
+        run: |
+          vercel build --token=${{secrets.VERCEL_TOKEN}}
       - name: Push Secrets to Vercel
         run: ./bin/vercel/sync-env.sh
         env:
           DOPPLER_TOKEN: ${{secrets.DOPPLER_TOKEN}}
           VERCEL_TOKEN: ${{secrets.VERCEL_TOKEN}}
-      - name: Link project
-        run: |
-          vercel build --token=${{secrets.VERCEL_TOKEN}}
       - name: Pull Vercel Configs
         run: vercel pull --yes --environment=preview --token=${{secrets.VERCEL_TOKEN}}
       - name: Build Vercel Artifact
