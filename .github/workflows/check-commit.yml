@@ -50,7 +50,7 @@ jobs:
         run: yarn run migrate:check
       - name: Link project
         run: |
-          vercel build --token=${{secrets.VERCEL_TOKEN}}
+          vercel link --yes --token=${{secrets.VERCEL_TOKEN}}
       - name: Push Secrets to Vercel
         run: ./bin/vercel/sync-env.sh
         env:
