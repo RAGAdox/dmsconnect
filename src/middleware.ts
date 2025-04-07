@@ -143,6 +143,7 @@ const handleModuleFeatureFlag = (
     .find(
       (flag) => flag.type === "module" && isMatchedByRoute(flag.featureUrl, req)
     );
+  console.log("Current Module", JSON.stringify(currentModule));
   if (currentModule && !currentModule.enabled) {
     return NextResponse.redirect(
       `${req.nextUrl.origin}${currentModule.fallbackUrl}`
