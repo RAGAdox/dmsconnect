@@ -52,6 +52,7 @@ jobs:
         run: ./bin/vercel/sync-env.sh
         env:
           DOPPLER_TOKEN: ${{secrets.DOPPLER_TOKEN}}
+          VERCEL_TOKEN: ${{secrets.VERCEL_TOKEN}}
       - name: Link project
         run: |
           vercel build --token=${{secrets.VERCEL_TOKEN}}
