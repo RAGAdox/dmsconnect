@@ -66,4 +66,4 @@ jobs:
         run: vercel build --token=${{secrets.VERCEL_TOKEN}}
       - name: Deploy to preview environment
         run: |
-          vercel deploy --prebuilt --token=${{secrets.VERCEL_TOKEN}}
+          vercel deploy --token=${{secrets.VERCEL_TOKEN}}
