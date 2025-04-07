@@ -10,19 +10,23 @@ fi
 
 echo "🔍 Fetching Vercel preview environment variables..."
 
-# Get all env variable names from the preview environment
-vars=$(vercel env ls preview --token="$VERCEL_TOKEN" | \
-  awk '/^│/ && !/Environment/ { print $2 }' | tail -n +2)
+echo "🔍 Listing Vercel environment variables for preview..."
+vercel env ls preview --token="$VERCEL_TOKEN" > tmp_vercel_envs.txt
+
+echo "🧼 Extracting variable names..."
+# Extract variable names (skip header and separator lines)
+vars=$(awk 'NR>2 {print $1}' tmp_vercel_envs.txt)
 
 if [[ -z "$vars" ]]; then
-  echo "✅ No environment variables found for preview."
+  echo "✅ No environment variables to remove."
+  rm tmp_vercel_envs.txt
   exit 0
 fi
 
-# Remove each variable
 for var in $vars; do
-  echo "❌ Removing $var from preview..."
-  vercel env rm "$var" preview --yes --token "$VERCEL_TOKEN"
+  echo "❌ Removing $var from preview environment..."
+  vercel env rm "$var" preview --yes --token="$VERCEL_TOKEN"
 done
 
-echo "✅ All preview environment variables removed."
+rm tmp_vercel_envs.txt
+echo "✅ All preview environment variables removed successfully."
