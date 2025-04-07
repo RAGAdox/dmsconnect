@@ -1,5 +1,7 @@
 #!/bin/bash
 
+doppler secrets download --no-file --format env > .env
+
 set -euo pipefail
 
 ENV_FILE=".env"
