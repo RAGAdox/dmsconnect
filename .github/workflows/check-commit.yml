@@ -63,5 +63,3 @@ jobs:
       - name: Deploy to preview environment
         run: |
           vercel deploy --prebuilt --token=${{secrets.VERCEL_TOKEN}}
-      - name: Cleanup Secrets
-        run: rm .env
