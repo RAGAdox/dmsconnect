@@ -1,1 +1,2 @@
-yarn lint
+yarn run migrate:check
+yarn run lint

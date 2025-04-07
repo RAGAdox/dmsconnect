@@ -7,8 +7,8 @@ export default function getRedisClient() {
     return redis;
   }
   redis = new Redis({
-    url: process.env.UPSTASH_REDIS_URL,
-    token: process.env.UPSTASH_REDIS_TOKEN,
+    url: process.env.UPSTASH_REDIS_URL!.trim(),
+    token: process.env.UPSTASH_REDIS_TOKEN!.trim(),
   });
   return redis;
 }

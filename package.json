@@ -2,18 +2,23 @@
   "name": "dmsconnect",
   "version": "0.1.0",
   "private": true,
+  "engines": {
+    "node": "22.x"
+  },
+  "packageManager": "yarn@1.22.22",
   "scripts": {
     "clean": "rm -rf node_modules && rm -rf .next",
-    "ci": "yarn install --frozen-lock",
+    "ci": "./bin/install.sh",
     "dev": "cross-env NODE_ENV=development next dev --turbopack --experimental-https",
     "build": "next build",
     "start": "next start",
     "lint": "next lint",
     "preview": "next build && next start",
     "postinstall": "prisma generate",
-    "migrate:up": "prisma migrate deploy && prisma db seed",
-    "migrate:create": "prisma migrate dev --create-only",
-    "migrate:reset": "prisma migrate reset && prisma db seed",
+    "migrate:up": "./bin/migrate.sh",
+    "migrate:create": "./bin/createMigration.sh",
+    "migrate:reset": "./bin/reset.sh",
+    "migrate:check": "./bin/check-missing-migrations.sh",
     "prepare": "husky"
   },
   "prisma": {

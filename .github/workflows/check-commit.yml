@@ -1,0 +1,69 @@
+name: Run Build on PRs
+
+on:
+  pull_request:
+    branches:
+      - main
+
+jobs:
+  build:
+    environment:
+      name: preview
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        node-version: [22.x]
+
+    env:
+      NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY: ${{secrets.NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY}}
+      CLERK_SECRET_KEY: ${{secrets.CLERK_SECRET_KEY}}
+      NEXT_PUBLIC_CLERK_SIGN_UP_FORCE_REDIRECT_URL: ${{secrets.NEXT_PUBLIC_CLERK_SIGN_UP_FORCE_REDIRECT_URL}}
+      NEXT_PUBLIC_CLEKT_SIGN_IN_FORCE_REDIRECT_URL: ${{secrets.NEXT_PUBLIC_CLEKT_SIGN_IN_FORCE_REDIRECT_URL}}
+      NEXT_PUBLIC_SUPABASE_URL: ${{secrets.NEXT_PUBLIC_SUPABASE_URL}}
+      SUPABASE_SERVICE_ROLE_KEY: ${{secrets.SUPABASE_SERVICE_ROLE_KEY}}
+      DATABASE_URL: ${{secrets.DATABASE_URL}}
+      DIRECT_URL: ${{secrets.DIRECT_URL}}
+      SHADOW_DB_URL: ${{secrets.SHADOW_DB_URL}}
+      EMAIL_DOMAINS: ${{secrets.EMAIL_DOMAINS}}
+      STORAGE_BUCKET_ID: ${{secrets.STORAGE_BUCKET_ID}}
+      STORAGE_BUCKET_ALLOWED_FILE_TYPES: ${{secrets.STORAGE_BUCKET_ALLOWED_FILE_TYPES}}
+      FEATURE_FLAG_FILE_VIEW: ${{secrets.FEATURE_FLAG_FILE_VIEW}}
+      FEATURE_FLAG_FILE_UPLOAD: ${{secrets.FEATURE_FLAG_FILE_UPLOAD}}
+      FEATURE_FLAG_ONBOARDING: ${{secrets.FEATURE_FLAG_ONBOARDING}}
+      FEATURE_FLAG_CHECK_EMAIL_DOMAINS: ${{secrets.FEATURE_FLAG_CHECK_EMAIL_DOMAINS}}
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Setup Dopler CLI
+        run: curl -sLf --retry 3 --retry-delay 2 https://cli.doppler.com/install.sh | sudo sh
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ matrix.node-version }}
+      - name: Install packages
+        run: |
+          yarn install && \
+          yarn global add vercel@latest
+      - name: Check migration
+        run: yarn run migrate:check
+      - name: Link project
+        run: |
+          vercel link --yes --token=${{secrets.VERCEL_TOKEN}}
+      - name: Remove Secrets from Vercel
+        run: ./bin/vercel/clean-vercel-env.sh
+        env:
+          VERCEL_TOKEN: ${{secrets.VERCEL_TOKEN}}
+      - name: Push Secrets to Vercel
+        run: ./bin/vercel/sync-env.sh
+        env:
+          DOPPLER_TOKEN: ${{secrets.DOPPLER_TOKEN}}
+          VERCEL_TOKEN: ${{secrets.VERCEL_TOKEN}}
+      - name: Pull Vercel Configs
+        run: vercel pull --yes --environment=preview --token=${{secrets.VERCEL_TOKEN}}
+      - name: Build Vercel Artifact
+        run: vercel build --token=${{secrets.VERCEL_TOKEN}}
+      - name: Deploy to preview environment
+        run: |
+          vercel deploy --token=${{secrets.VERCEL_TOKEN}}

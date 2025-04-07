@@ -2,7 +2,7 @@ import { $Enums, PrismaClient } from "@prisma/client";
 
 const prisma = new PrismaClient();
 
-const createCrossSchemaReferences = async () => {
+export const createCrossSchemaReferences = async () => {
   console.log("Creating cross schema references");
   await prisma.$executeRaw`
     DO $$
@@ -25,6 +25,12 @@ const createCrossSchemaReferences = async () => {
 
 const seedPredefinedUsers = async () => {
   console.log("Seeding predefined_user_roles");
+
+  // TODO: Add external source for predefined roles
+  /**
+   * emails and any other personal data should not be hardcoded
+   * in the codebase.
+   */
   const data = [
     {
       email: "rishirishi20121997@gmail.com",
@@ -38,8 +44,15 @@ const seedPredefinedUsers = async () => {
   });
 };
 
+/**
+ * This function seeds the database with initial data.
+ * It should be run after the database is created and migrated.
+ * It can be run multiple times without duplicating data.
+ */
+
 async function seeder() {
-  await createCrossSchemaReferences();
+  /** Currently cross referencing schema is not stable in prisma. This cross reference is used in the case of deletion of file using supabase dashboard or other mechanisms. For production we should implement direct S3 uploads using S3 access key and only store these data in our schema */
+  // await createCrossSchemaReferences();
   await seedPredefinedUsers();
 }
 
