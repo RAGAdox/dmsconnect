@@ -11,7 +11,7 @@ fi
 echo "🔍 Fetching Vercel preview environment variables..."
 
 # Get all env variable names from the preview environment
-vars=$(vercel env ls --environment preview --token="$VERCEL_TOKEN" | \
+vars=$(vercel env ls preview --token="$VERCEL_TOKEN" | \
   awk '/^│/ && !/Environment/ { print $2 }' | tail -n +2)
 
 if [[ -z "$vars" ]]; then
