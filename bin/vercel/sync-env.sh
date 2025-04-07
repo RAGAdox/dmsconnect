@@ -26,7 +26,7 @@ while IFS='=' read -r key raw_value || [[ -n "$key" ]]; do
   value=$(echo -n "$raw_value" | sed -e 's/^["'"'"']//' -e 's/["'"'"']$//' | tr -d '\n' | xargs)
 
   echo "🔑 Syncing $key"
-  vercel env rm "$var" preview --yes --token="$VERCEL_TOKEN"
+  vercel env rm "$key" preview --yes --token="$VERCEL_TOKEN"
   vercel env add "$key" preview --yes --token="$VERCEL_TOKEN" <<< "$value"
 
 done < "$ENV_FILE"
